@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import DatabaseConnection from "../../lib/db";
 import { NotesModel } from "../../models/tasks";
 
@@ -12,7 +12,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await DatabaseConnection();
     const { title, note } = await request.json();
