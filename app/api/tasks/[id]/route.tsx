@@ -1,11 +1,19 @@
 import DatabaseConnection from "@/app/lib/db";
 import { NotesModel } from "@/app/models/tasks";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(request, { params }) {
+interface RouteParams {
+  id: string;
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<RouteParams> }
+) {
   try {
-    const { id } = params;
-    console.log("I am params", id);
+    const { id } = await params;
+
+    console.log("i am params:", id);
 
     if (!id) {
       return NextResponse.json({ success: false, error: "Id is required" });
