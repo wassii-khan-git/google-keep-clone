@@ -4,19 +4,27 @@ import React, { useState } from "react";
 import { CloseOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import TaskLists from "./table";
 // Main from component
+
+interface NotesProps {
+  _id: string;
+  title: string;
+  note: string;
+  createdAt: Date;
+}
+
+interface dataProps {
+  title: string;
+  note: string;
+}
+
 const Form = () => {
   // title
   const [title, setTitle] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
+  const [data, setData] = useState<NotesProps | undefined>(undefined);
 
-  // Handle Submit
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const data = {
-      title,
-      note,
-    };
+  const addNote = async (data: dataProps) => {
     try {
       const response = await fetch("/api/tasks", {
         method: "POST",
@@ -26,17 +34,29 @@ const Form = () => {
         body: JSON.stringify(data),
       });
       console.log("I am response", response);
+      const myData = await response.json();
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       } else {
         setSuccess(true);
         setTitle("");
         setNote("");
+        setData(myData.data);
       }
     } catch (error) {
       setSuccess(false);
       console.log("I am error", error);
     }
+  };
+
+  // Handle Submit
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = {
+      title,
+      note,
+    };
+    await addNote(data);
   };
 
   return (
@@ -89,7 +109,7 @@ const Form = () => {
           </div>
         </form>
       </div>
-      <TaskLists success={success} />
+      <TaskLists success={success} note={data} />
     </>
   );
 };
