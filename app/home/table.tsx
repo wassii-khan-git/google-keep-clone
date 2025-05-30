@@ -3,12 +3,20 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../(components)/data-table";
 
-interface Task {
-  success: boolean;
+interface NotesProps {
+  _id: string;
+  title: string;
+  note: string;
+  createdAt: Date;
 }
 
-const TaskLists = (success: Task) => {
-  const [data, setData] = useState([]);
+interface Task {
+  success: boolean;
+  note?: NotesProps;
+}
+
+const TaskLists = ({ success, note }: Task) => {
+  const [data, setData] = useState<NotesProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -20,8 +28,6 @@ const TaskLists = (success: Task) => {
           "Content-Type": "application/json",
         },
       });
-      console.log("I am response", response);
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -36,10 +42,20 @@ const TaskLists = (success: Task) => {
 
   useEffect(() => {
     fetchData();
-  }, [success]);
+  }, []);
+
+  useEffect(() => {
+    console.log("i am notes", note);
+    if (note) {
+      setData((prev) => [...prev, note]);
+    }
+  }, [note]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
+  console.log("data", data);
+
+  console.log("i am success", success);
 
   return (
     <>
