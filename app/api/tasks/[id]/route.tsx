@@ -1,5 +1,5 @@
-import DatabaseConnection from "@/app/lib/db";
-import { NotesModel } from "@/app/models/tasks";
+import DatabaseConnection from "@/lib/db";
+import { NotesModel } from "@/models/tasks";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import DatabaseConnection from "../../lib/db";
-import { NotesModel } from "../../models/tasks";
+import DatabaseConnection from "../../../lib/db";
+import { NotesModel } from "../../../models/tasks";
 
 export async function GET() {
   try {
