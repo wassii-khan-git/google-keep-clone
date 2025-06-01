@@ -5,7 +5,7 @@ import { Button } from "../button";
 
 const Navbar = () => {
   return (
-    <header className=" px-4 py-2 flex items-center shadow-md">
+    <header className="px-4 py-2 flex items-center shadow-md">
       {/* Hamburger Menu */}
       {/* <Button variant="outline">
         <MenuOutlined />
