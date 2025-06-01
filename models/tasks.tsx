@@ -1,17 +1,30 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Document, Schema, models } from "mongoose";
 
-const NotesSchema = new Schema(
+export interface Note extends Document {
+  title?: string;
+  note: string;
+  isPinned?: boolean;
+  isArchived?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const NoteSchema = new Schema<Note>(
   {
     title: {
       type: String,
-      required: true,
+      trim: true,
     },
     note: {
       type: String,
-      required: true,
-      maxlength: 20000,
+      required: [true, "Content is required."],
+      trim: true,
     },
-    status: {
+    isPinned: {
+      type: Boolean,
+      default: false,
+    },
+    isArchived: {
       type: Boolean,
       default: false,
     },
@@ -19,5 +32,7 @@ const NotesSchema = new Schema(
   { timestamps: true }
 );
 
-export const NotesModel =
-  mongoose.models.notes || mongoose.model("notes", NotesSchema);
+// Prevent model recompilation in Next.js hot-reloading environments
+const NotesModel = models.notes || mongoose.model<Note>("notes", NoteSchema);
+
+export default NotesModel;
