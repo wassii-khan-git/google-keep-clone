@@ -82,7 +82,7 @@ const AllNotes = ({ data }: NoteProps) => {
           <div className="flex items-center justify-center col-span-4">
             <LoadingOutlined className="text-3xl text-yellow-500" />
           </div>
-        ) : (
+        ) : notes.length > 0 ? (
           notes.map((item, index = 1) => (
             <div
               key={index}
@@ -121,6 +121,8 @@ const AllNotes = ({ data }: NoteProps) => {
               </div>
             </div>
           ))
+        ) : (
+          <>No Notes Found</>
         )}
       </div>
     </div>
