@@ -1,11 +1,18 @@
 "use client";
 
-import { notify } from "@/lib/utils";
-import { CloseCircleOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
+import { CloseOutlined } from "@ant-design/icons";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import TooltipButton from "../custom-button";
+import { CreateNote } from "@/lib/actions";
+import { Note } from "@/models/tasks";
+
+interface CreateNoteResponse {
+  success?: boolean;
+  data?: Note | unknown;
+}
 
 interface NoteProps {
-  ToggleHandler: () => void;
+  ToggleHandler: ({ success, data }: CreateNoteResponse) => void;
 }
 
 const AddNote = ({ ToggleHandler }: NoteProps) => {
@@ -13,38 +20,86 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
   const [title, setTitle] = useState<string>("");
   // note
   const [note, setNote] = useState<string>("");
-  // add note
-  const addNote = async () => {
-    if (!title || !note) {
-      notify({ message: "Please add some note", flag: false });
+  // note ref
+  const noteRef = useRef<HTMLDivElement>(null);
+  // input height
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea
+  const adjustTextareaHeight = () => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = `${Math.min(
+        textAreaRef.current.scrollHeight,
+        200 // max height in px
+      )}px`;
     }
-    // store the info
   };
 
+  // add note
+  const addNote = useCallback(async () => {
+    if (!title.trim() && !note.trim()) {
+      console.log("Note is empty");
+      return;
+    }
+    const response = await CreateNote({ title, note });
+    console.log("Response from CreateNote:", response);
+
+    if (response.success) {
+      ToggleHandler({ success: true, data: response.data });
+      setTitle("");
+      setNote("");
+    }
+  }, [title, note, ToggleHandler]);
+
+  // clickaawy
+  useEffect(() => {
+    const clickAway = (e: Event) => {
+      if (noteRef.current && !noteRef.current.contains(e.target as Node)) {
+        console.log("Clicked outside the note area");
+        addNote();
+      }
+    };
+    document.addEventListener("mousedown", clickAway);
+    return () => document.removeEventListener("mousedown", clickAway);
+  }, [noteRef, addNote]);
+
   return (
-    <div className="p-3 w-[30rem] border rounded-sm shadow ">
-      <div className="flex justify-between mt-2 mb-5">
+    <div
+      ref={noteRef}
+      className="hover:border-gray-500 p-3 w-full md:w-[30rem] mx-auto border rounded-sm shadow "
+    >
+      <div className="flex justify-between mt-2 mb-2">
         {/* title */}
         <input
+          autoFocus={true}
           name="title"
           id="title"
           className="w-full resize-none border-none outline-none ml-2 font-semibold"
           placeholder="Title"
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            setTitle(e.target.value);
+          }}
         />
         {/* close */}
-        <CloseCircleOutlined
-          className=" text-gray-500 text-xl cursor-pointer"
-          onClick={ToggleHandler}
+        <TooltipButton
+          idx={1}
+          icon={<CloseOutlined />}
+          onClick={() => ToggleHandler({ success: false })}
+          tooltipText="Close Note"
         />
       </div>
       {/* details */}
       <textarea
+        ref={textAreaRef}
         name="note"
         id="note"
         className="w-full text-gray-500 resize-none border-none outline-none ml-2 font-semibold"
         placeholder="Take a note"
-        onChange={(e) => setNote(e.target.value)}
+        onChange={(e) => {
+          setNote(e.target.value);
+          adjustTextareaHeight();
+        }}
       />
     </div>
   );
