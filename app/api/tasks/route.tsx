@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import DatabaseConnection from "../../../lib/db";
-import { NotesModel } from "../../../models/tasks";
+import NotesModel from "@/models/tasks";
+import DbConnect from "@/lib/db";
 
 export async function GET() {
   try {
-    await DatabaseConnection();
+    await DbConnect();
     const notes = await NotesModel.find();
     return NextResponse.json({ success: true, data: notes });
   } catch (error) {
@@ -14,7 +14,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    await DatabaseConnection();
+    await DbConnect();
     const { title, note } = await request.json();
     const notesRecord = await NotesModel.create({ title, note });
     return NextResponse.json({ success: true, data: notesRecord });
