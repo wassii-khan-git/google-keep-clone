@@ -1,5 +1,5 @@
-import DatabaseConnection from "@/lib/db";
-import { NotesModel } from "@/models/tasks";
+import DbConnect from "@/lib/db";
+import NotesModel from "@/models/tasks";
 import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
@@ -18,7 +18,7 @@ export async function DELETE(
     if (!id) {
       return NextResponse.json({ success: false, error: "Id is required" });
     }
-    await DatabaseConnection();
+    await DbConnect();
     const notes = await NotesModel.findByIdAndDelete(id);
     return NextResponse.json({ success: true, data: notes });
   } catch (error) {
