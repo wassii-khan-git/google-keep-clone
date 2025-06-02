@@ -5,7 +5,7 @@ import AddNote from "./add-note";
 import AllNotes from "./all-notes";
 import { ToastContainer } from "react-toastify";
 import { notify } from "@/lib/utils";
-import { Note } from "@/models/tasks";
+import { Note } from "@/models/tasks.model";
 
 export interface ToggleHandlerProps {
   success?: boolean;
