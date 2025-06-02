@@ -1,6 +1,6 @@
 "use server";
 
-import NotesModel, { Note } from "@/models/tasks";
+import NotesModel, { Note } from "@/models/tasks.model";
 import DbConnect from "./db";
 import { NoteSchemaValidation } from "./validator";
 
