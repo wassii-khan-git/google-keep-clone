@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import TooltipButton from "../custom-button";
 import { DeleteNote, GetAllNotes } from "@/lib/actions";
-import { Note } from "@/models/tasks";
+import { Note } from "@/models/tasks.model";
 import { notify } from "@/lib/utils";
 
 interface NoteProps {
