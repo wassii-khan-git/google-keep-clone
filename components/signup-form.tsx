@@ -17,6 +17,12 @@ import { SignUpSchema } from "@/lib/validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 
+interface SignUp {
+  username: string;
+  email: string;
+  password: string;
+}
+
 export function SignupForm({
   className,
   ...props
@@ -33,6 +39,24 @@ export function SignupForm({
       password: "",
     },
   });
+
+  // store user
+  const SignUp = async (values: SignUp) => {
+    try {
+      const response = await fetch(`${process.env.API_URL}/signup`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: { values },
+      });
+
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
     console.log(values);

@@ -20,7 +20,6 @@ export const POST = async (req: NextRequest) => {
 
     // Check if the user exists
     const user = await UserModel.findOne({ username, email });
-
     if (user) {
       return NextResponse.json(
         { success: false, message: "User already found" }, // Generic message for security
@@ -28,10 +27,12 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
+    const newUser = await UserModel.create({ username, email });
+
     const response = NextResponse.json({
       success: true,
-      message: "Signed in successfully",
-      data: user,
+      message: "Account created successfully",
+      data: newUser,
     });
 
     return response;
