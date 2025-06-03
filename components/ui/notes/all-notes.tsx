@@ -7,7 +7,7 @@ import {
   PushpinOutlined,
 } from "@ant-design/icons";
 import TooltipButton from "../custom-button";
-import { DeleteNote, GetAllNotes } from "@/lib/actions";
+import { DeleteNote, GetAllNotes } from "@/lib/actions/notes.actions";
 import { Note } from "@/models/tasks.model";
 import { notify } from "@/lib/utils";
 

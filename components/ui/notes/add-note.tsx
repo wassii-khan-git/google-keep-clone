@@ -3,7 +3,7 @@
 import { CloseOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import TooltipButton from "../custom-button";
-import { CreateNote } from "@/lib/actions";
+import { CreateNote } from "@/lib/actions/notes.actions";
 import { Note } from "@/models/tasks.model";
 
 interface CreateNoteResponse {

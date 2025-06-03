@@ -1,9 +1,18 @@
-import { BellOutlined, SearchOutlined } from "@ant-design/icons";
+"use client";
+import {
+  BellOutlined,
+  LogoutOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import Image from "next/image";
 import React from "react";
 import { Button } from "../button";
+import { useSession } from "next-auth/react";
+import { handleSignOut } from "@/lib/actions/auth.action";
 
 const Navbar = () => {
+  const session = useSession();
+
   return (
     <header className="px-4 py-2 flex items-center shadow-md">
       {/* Hamburger Menu */}
@@ -35,9 +44,10 @@ const Navbar = () => {
 
       {/* Icons */}
       <div className="flex items-center space-x-4">
+        <h1>{session?.data?.user?.name}</h1>
         {/* Notifications Icon */}
-        <Button variant="outline">
-          <BellOutlined />
+        <Button variant="outline" onClick={handleSignOut}>
+          <LogoutOutlined />
         </Button>
 
         {/* User Avatar */}

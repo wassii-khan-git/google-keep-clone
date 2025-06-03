@@ -1,32 +1,52 @@
+// models/user.model.ts
 import { Document, Schema, model, models } from "mongoose";
 import bcrypt from "bcryptjs";
 // patterns
 import { EmailPatterns } from "@/lib/patterns";
 
-interface User extends Document {
+export interface IUser extends Document {
+  _id: string;
+  username?: string;
   email: string;
   password: string;
-  updatedAt?: Date;
-  createdAt?: Date;
-  token?: string;
+  image?: string;
+  emailVerified?: Date;
+  provider?: string;
+  providerId?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const UserSchema = new Schema<User>(
+const UserSchema = new Schema<IUser>(
   {
+    username: {
+      type: String,
+      trim: true,
+    },
     email: {
       type: String,
-      required: [true, "Email is required"],
+      required: true,
       unique: true,
-      trim: true,
       lowercase: true,
       match: [EmailPatterns, "Please enter a valid email"],
+      trim: true,
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters"],
+      minlength: 6,
     },
-    token: {
+    image: {
+      type: String,
+    },
+    emailVerified: {
+      type: Date,
+    },
+    provider: {
+      type: String,
+      enum: ["credentials", "google", "github"],
+      default: "credentials",
+    },
+    providerId: {
       type: String,
     },
   },
@@ -52,7 +72,7 @@ UserSchema.pre("save", async function (next) {
 UserSchema.methods.comparePassword = async function (
   candidatePassword: string
 ): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this.password);
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
-export const UserModel = models.users || model<User>("users", UserSchema);
+export const UserModel = models.users || model<IUser>("users", UserSchema);

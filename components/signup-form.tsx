@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, notify } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,7 +17,7 @@ import { SignUpSchema } from "@/lib/validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 
-interface SignUp {
+interface SignupProps {
   username: string;
   email: string;
   password: string;
@@ -31,36 +31,49 @@ export function SignupForm({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: {
+      username: "",
       email: "",
       password: "",
     },
   });
 
   // store user
-  const SignUp = async (values: SignUp) => {
+  const SignUp = async (values: SignupProps) => {
     try {
-      const response = await fetch(`${process.env.API_URL}/signup`, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: { values },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/signup`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }
+      );
 
       const data = await response.json();
       console.log(data);
+      if (data.success) {
+        notify({ message: data.message, flag: data.success });
+        reset();
+      } else {
+        notify({ message: data.message, flag: data.success || false });
+      }
     } catch (error) {
       console.log(error);
+      notify({ message: "Error occurred", flag: false });
     }
   };
 
-  const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
+  const onSubmit = async (values: z.infer<typeof SignUpSchema>) => {
     console.log(values);
     // check for the Signup api
+    await SignUp(values);
   };
 
   return (

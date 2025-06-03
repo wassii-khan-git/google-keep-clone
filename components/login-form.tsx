@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, notify } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,11 +16,19 @@ import { z } from "zod";
 import { SignInSchema } from "@/lib/validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { handleSignIn } from "@/lib/actions/auth.action";
+import { GoogleOutlined } from "@ant-design/icons";
+import { getSession } from "next-auth/react";
+import { signIn } from "@/lib/auth";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // use form
   const {
     register,
@@ -34,9 +42,66 @@ export function LoginForm({
     },
   });
 
-  const onSubmit = (values: z.infer<typeof SignInSchema>) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
+  // store user
+  // const SignIn = async (values: z.infer<typeof SignInSchema>) => {
+  //   try {
+  //     setIsSubmitting(true);
+  //     const response = await fetch(
+  //       `${process.env.NEXT_PUBLIC_API_URL}/auth/signin`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "content-type": "application/json",
+  //         },
+  //         body: JSON.stringify(values),
+  //       }
+  //     );
+
+  //     const data = await response.json();
+  //     console.log(data);
+  //     if (data.success) {
+  //       notify({ message: data.message, flag: data.success });
+  //       reset();
+  //       setIsSubmitting(false);
+  //       router.push("/dashboard");
+  //     } else {
+  //       notify({ message: data.message, flag: data.success || false });
+  //       setIsSubmitting(false);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     notify({ message: "Error occurred", flag: false });
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
+  const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
     console.log(values);
-    // check for the login api
+    // check for the SignIn api
+    try {
+      const result = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        notify({ message: "Invalid email or password", flag: false });
+      } else if (result?.ok) {
+        // Refresh the session and redirect
+        await getSession();
+        router.push(callbackUrl);
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      notify({ message: "An error occurred during login", flag: false });
+    }
   };
 
   return (
@@ -70,22 +135,14 @@ export function LoginForm({
                 )}
               </div>
               <div className="grid gap-3">
-                {/* Forgot password */}
-                {/* <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div> */}
+                <Label htmlFor="password">Password</Label>
                 <Input
                   {...register("password")}
                   id="password"
                   type="password"
                   required
                   autoComplete="current-password"
+                  placeholder="12345678"
                   className={`${errors.password && "border border-red-500"}`}
                 />
                 {/* errors */}
@@ -96,13 +153,23 @@ export function LoginForm({
                 )}
               </div>
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Login
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Authenticating..." : "Login"}
                 </Button>
                 {/* login with google */}
-                {/* <Button variant="outline" className="w-full mt-3">
-                  Login with Google
-                </Button> */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full mt-3"
+                  onClick={() => handleSignIn("/dashboard")}
+                  disabled={isSubmitting}
+                >
+                  <GoogleOutlined /> Login with Google
+                </Button>
               </div>
             </div>
             <div className="mt-4 text-center text-sm">
