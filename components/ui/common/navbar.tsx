@@ -1,14 +1,25 @@
 "use client";
 import {
-  BellOutlined,
   LogoutOutlined,
+  ProfileOutlined,
   SearchOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import Image from "next/image";
 import React from "react";
-import { Button } from "../button";
 import { useSession } from "next-auth/react";
 import { handleSignOut } from "@/lib/actions/auth.action";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const session = useSession();
@@ -17,7 +28,7 @@ const Navbar = () => {
     <header className="px-4 py-2 flex items-center shadow-md">
       {/* Hamburger Menu */}
       {/* <Button variant="outline">
-        <MenuOutlined />
+        <NotificationOutlined />
       </Button> */}
 
       {/* Logo */}
@@ -44,22 +55,51 @@ const Navbar = () => {
 
       {/* Icons */}
       <div className="flex items-center space-x-4">
-        <h1>{session?.data?.user?.name}</h1>
-        {/* Notifications Icon */}
-        <Button variant="outline" onClick={handleSignOut}>
-          <LogoutOutlined />
-        </Button>
-
-        {/* User Avatar */}
-        <div className="w-8 h-8 rounded-full overflow-hidden">
-          <Image
-            src="https://avatars.githubusercontent.com/u/1?v=4"
-            alt="User Avatar"
-            width={100}
-            height={100}
-            className=" object-cover"
-          />
-        </div>
+        <h1 className="font-semibold">{session?.data?.user?.name}</h1>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            {/* User Avatar */}
+            <div className="w-8 h-8 rounded-full overflow-hidden cursor-pointer">
+              <Image
+                src={
+                  session?.data?.user?.image ??
+                  "https://avatars.githubusercontent.com/u/1?v=4"
+                }
+                alt="User Avatar"
+                width={32}
+                height={32}
+                className="object-cover"
+              />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="start">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                Profile
+                <DropdownMenuShortcut>
+                  <ProfileOutlined />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                Settings
+                <DropdownMenuShortcut>
+                  <SettingOutlined />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={handleSignOut}
+            >
+              Log out
+              <DropdownMenuShortcut>
+                <LogoutOutlined />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
