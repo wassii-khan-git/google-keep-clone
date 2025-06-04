@@ -16,6 +16,8 @@ import { z } from "zod";
 import { SignUpSchema } from "@/lib/validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { LoadingOutlined } from "@ant-design/icons";
 
 interface SignupProps {
   username: string;
@@ -32,7 +34,7 @@ export function SignupForm({
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: {
@@ -41,6 +43,8 @@ export function SignupForm({
       password: "",
     },
   });
+
+  const router = useRouter();
 
   // store user
   const SignUp = async (values: SignupProps) => {
@@ -61,6 +65,9 @@ export function SignupForm({
       if (data.success) {
         notify({ message: data.message, flag: data.success });
         reset();
+        setTimeout(() => {
+          router.push("/"); // redirect to Login page
+        }, 2000);
       } else {
         notify({ message: data.message, flag: data.success || false });
       }
@@ -150,8 +157,12 @@ export function SignupForm({
                 )}
               </div>
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Signup
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? <LoadingOutlined /> : "Signup"}
                 </Button>
                 {/* Signup with google */}
                 {/* <Button variant="outline" className="w-full mt-3">
