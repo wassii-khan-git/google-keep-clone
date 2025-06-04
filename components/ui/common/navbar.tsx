@@ -10,19 +10,30 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import { handleSignOut } from "@/lib/actions/auth.action";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import CustomDropdown from "./custom-dropdown";
 
 const Navbar = () => {
+  // session
   const session = useSession();
+  // Define menu items for the dropdown
+  const menuItems = [
+    {
+      title: "Profile",
+      icon: <ProfileOutlined className="mr-2 h-4 w-4" />,
+      isClickable: false,
+    },
+    {
+      title: "Settings",
+      icon: <SettingOutlined className="mr-2 h-4 w-4" />,
+      isClickable: false,
+    },
+    {
+      title: "Log out",
+      icon: <LogoutOutlined className="mr-2 h-4 w-4" />,
+      isClickable: true,
+      handleClick: async () => await handleSignOut(),
+    },
+  ];
 
   return (
     <header className="px-4 py-2 flex items-center shadow-md">
@@ -56,50 +67,20 @@ const Navbar = () => {
       {/* Icons */}
       <div className="flex items-center space-x-4">
         <h1 className="font-semibold">{session?.data?.user?.name}</h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            {/* User Avatar */}
-            <div className="w-8 h-8 rounded-full overflow-hidden cursor-pointer">
-              <Image
-                src={
-                  session?.data?.user?.image ??
-                  "https://avatars.githubusercontent.com/u/1?v=4"
-                }
-                alt="User Avatar"
-                width={32}
-                height={32}
-                className="object-cover"
-              />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="start">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                Profile
-                <DropdownMenuShortcut>
-                  <ProfileOutlined />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Settings
-                <DropdownMenuShortcut>
-                  <SettingOutlined />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={handleSignOut}
-            >
-              Log out
-              <DropdownMenuShortcut>
-                <LogoutOutlined />
-              </DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <CustomDropdown menuitems={menuItems || []} direction="end">
+          <div className="w-8 h-8 rounded-full overflow-hidden cursor-pointer">
+            <Image
+              src={
+                session?.data?.user?.image ??
+                "https://avatars.githubusercontent.com/u/1?v=4"
+              }
+              alt="User Avatar"
+              width={32}
+              height={32}
+              className="object-cover"
+            />
+          </div>
+        </CustomDropdown>
       </div>
     </header>
   );
