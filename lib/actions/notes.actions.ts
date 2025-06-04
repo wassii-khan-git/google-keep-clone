@@ -1,8 +1,8 @@
 "use server";
 
-import NotesModel, { Note } from "@/models/tasks";
-import DbConnect from "./db";
-import { NoteSchemaValidation } from "./validator";
+import NotesModel, { Note } from "@/models/tasks.model";
+import DbConnect from "../db";
+import { NoteSchemaValidation } from "../validator";
 
 // create note payload interface
 export interface CreateNotePayload {

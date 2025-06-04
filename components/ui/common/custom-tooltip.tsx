@@ -14,7 +14,7 @@ const TooltipButton = ({
   tooltipText,
 }: TooltipButtonProps) => {
   return (
-    <div className="relative group mt-2" key={idx}>
+    <div className="relative group" key={idx}>
       <label
         className="hover:bg-gray-100 text-gray-500 px-3 py-2.5 rounded-full cursor-pointer"
         onClick={onClick}
