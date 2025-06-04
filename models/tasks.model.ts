@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, models } from "mongoose";
 
-export interface Note extends Document {
+export interface INote extends Document {
   title?: string;
   note: string;
   isPinned?: boolean;
@@ -9,7 +9,7 @@ export interface Note extends Document {
   updatedAt: Date;
 }
 
-const NoteSchema = new Schema<Note>(
+const NoteSchema = new Schema<INote>(
   {
     title: {
       type: String,
@@ -33,6 +33,6 @@ const NoteSchema = new Schema<Note>(
 );
 
 // Prevent model recompilation in Next.js hot-reloading environments
-const NotesModel = models.notes || mongoose.model<Note>("notes", NoteSchema);
+const NotesModel = models.notes || mongoose.model<INote>("notes", NoteSchema);
 
 export default NotesModel;
