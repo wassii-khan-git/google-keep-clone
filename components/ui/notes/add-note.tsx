@@ -2,13 +2,13 @@
 
 import { CloseOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import TooltipButton from "../custom-button";
+import TooltipButton from "../common/custom-tooltip";
 import { CreateNote } from "@/lib/actions/notes.actions";
-import { Note } from "@/models/tasks.model";
+import { INote } from "@/models/tasks.model";
 
 interface CreateNoteResponse {
   success?: boolean;
-  data?: Note | unknown;
+  data?: INote;
 }
 
 interface NoteProps {
