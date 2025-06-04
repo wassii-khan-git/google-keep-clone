@@ -16,24 +16,20 @@ import { z } from "zod";
 import { SignInSchema } from "@/lib/validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { handleSignIn } from "@/lib/actions/auth.action";
-import { GoogleOutlined } from "@ant-design/icons";
-import { getSession } from "next-auth/react";
-import { signIn } from "@/lib/auth";
+import { GoogleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { getSession, signIn } from "next-auth/react";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   // use form
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
     defaultValues: {
@@ -43,42 +39,6 @@ export function LoginForm({
   });
 
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-
-  // store user
-  // const SignIn = async (values: z.infer<typeof SignInSchema>) => {
-  //   try {
-  //     setIsSubmitting(true);
-  //     const response = await fetch(
-  //       `${process.env.NEXT_PUBLIC_API_URL}/auth/signin`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "content-type": "application/json",
-  //         },
-  //         body: JSON.stringify(values),
-  //       }
-  //     );
-
-  //     const data = await response.json();
-  //     console.log(data);
-  //     if (data.success) {
-  //       notify({ message: data.message, flag: data.success });
-  //       reset();
-  //       setIsSubmitting(false);
-  //       router.push("/dashboard");
-  //     } else {
-  //       notify({ message: data.message, flag: data.success || false });
-  //       setIsSubmitting(false);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     notify({ message: "Error occurred", flag: false });
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
 
   const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
     console.log(values);
@@ -95,7 +55,7 @@ export function LoginForm({
       } else if (result?.ok) {
         // Refresh the session and redirect
         await getSession();
-        router.push(callbackUrl);
+        router.push("/dashboard");
         router.refresh();
       }
     } catch (err) {
@@ -158,7 +118,7 @@ export function LoginForm({
                   className="w-full"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Authenticating..." : "Login"}
+                  {isSubmitting ? <LoadingOutlined /> : "Login"}
                 </Button>
                 {/* login with google */}
                 <Button
