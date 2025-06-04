@@ -3,7 +3,7 @@ import React from "react";
 interface TooltipButtonProps {
   idx?: number;
   icon: React.ReactNode;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   tooltipText?: string;
 }
 

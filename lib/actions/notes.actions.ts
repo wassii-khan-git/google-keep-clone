@@ -1,6 +1,6 @@
 "use server";
 
-import NotesModel, { Note } from "@/models/tasks.model";
+import NotesModel, { INote } from "@/models/tasks.model";
 import DbConnect from "../db";
 import { NoteSchemaValidation } from "../validator";
 
@@ -17,7 +17,7 @@ export interface DeleteNotePayload {
 export interface NotePayloadReturn {
   success: boolean;
   message: string;
-  data?: Note[] | Note | null;
+  data?: INote[] | INote | null;
 }
 
 // update note payload interface
@@ -50,7 +50,7 @@ export const CreateNote = async (
     return {
       success: true,
       message: "Note created successfully",
-      data: JSON.parse(JSON.stringify(savedNote)) as Note[],
+      data: JSON.parse(JSON.stringify(savedNote)) as INote[],
     };
   } catch (error) {
     // if an error occurs, return the error message
@@ -73,7 +73,7 @@ export const GetAllNotes = async (): Promise<NotePayloadReturn> => {
     return {
       success: true,
       message: "Notes fetched successfully",
-      data: JSON.parse(JSON.stringify(notes)) as Note[],
+      data: JSON.parse(JSON.stringify(notes)) as INote[],
     };
   } catch (error) {
     // if an error occurs, return the error message
@@ -105,7 +105,7 @@ export const DeleteNote = async ({
     return {
       success: true,
       message: "Note deleted successfully",
-      data: JSON.parse(JSON.stringify(note)) as Note,
+      data: JSON.parse(JSON.stringify(note)) as INote,
     };
   } catch (error) {
     // if an error occurs, return the error message

@@ -39,15 +39,16 @@ export const POST = async (req: NextRequest) => {
       message: "Account created successfully",
       data: newUser,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: error.message || "An error occurred during sign-up",
+        },
+        { status: 500 }
+      );
+    }
     console.error("Sign-up error:", error);
-    // It's good practice to avoid sending detailed internal error messages to the client.
-    return NextResponse.json(
-      {
-        success: false,
-        message: "An unexpected error occurred. Please try again.",
-      },
-      { status: 500 }
-    );
   }
 };
