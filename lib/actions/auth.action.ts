@@ -1,8 +1,4 @@
-"use server";
-
-import { UserModel } from "@/models/user.model";
-import { signIn, signOut } from "../auth";
-import DbConnect from "../db";
+import { signIn, signOut } from "next-auth/react";
 
 // login action
 export const handleSignIn = async (url?: string) => {
