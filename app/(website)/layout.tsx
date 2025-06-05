@@ -1,10 +1,17 @@
 import "@/app/globals.css";
+import { Metadata } from "next";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-poppins",
   weight: ["400"],
 });
+
+export const metadata: Metadata = {
+  title: "Google Keep Clone",
+  description: "Google Keep clone",
+};
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
