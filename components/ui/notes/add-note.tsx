@@ -46,7 +46,7 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
     console.log("Response from CreateNote:", response);
 
     if (response.success) {
-      ToggleHandler({ success: true, data: response.data });
+      ToggleHandler({ success: true, data: response.data as INote });
       setTitle("");
       setNote("");
     }

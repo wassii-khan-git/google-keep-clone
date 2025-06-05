@@ -21,7 +21,7 @@ const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
         </label>
         <TooltipButton
           icon={<PictureOutlined className="text-xl" />}
-          onClick={(e: MouseEvent) => {
+          onClick={(e: React.MouseEvent) => {
             notify({
               message: "Add Image feature coming soon",
               flag: false,

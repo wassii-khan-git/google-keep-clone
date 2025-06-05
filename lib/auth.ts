@@ -1,9 +1,10 @@
 // lib/auth.ts or app/api/auth/[...nextauth]/route.ts
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthConfig, Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import DbConnect from "@/lib/db";
 import { UserModel } from "@/models/user.model";
+import { JWT } from "next-auth/jwt";
 
 export const authOptions = {
   providers: [
@@ -21,7 +22,6 @@ export const authOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-
         try {
           await DbConnect();
 
@@ -57,7 +57,7 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account }): Promise<JWT> {
       // Initial sign in
       if (account && user) {
         token.provider = account.provider;
@@ -65,14 +65,24 @@ export const authOptions = {
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }): Promise<Session> {
       if (token) {
-        session.user.id = token.userId as string;
-        session.user.provider = token.provider as string;
+        (
+          session.user as typeof session.user & {
+            id?: string;
+            provider?: string;
+          }
+        ).id = token.userId as string;
+        (
+          session.user as typeof session.user & {
+            id?: string;
+            provider?: string;
+          }
+        ).provider = token.provider as string;
       }
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       if (!account) {
         return false;
       }
@@ -110,6 +120,6 @@ export const authOptions = {
     strategy: "jwt" as const,
   },
   secret: process.env.AUTH_SECRET,
-};
+} satisfies NextAuthConfig;
 
 export const { signIn, signOut, auth, handlers } = NextAuth(authOptions);
