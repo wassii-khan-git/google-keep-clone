@@ -15,6 +15,8 @@ import CustomDropdown from "./custom-dropdown";
 const Navbar = () => {
   // session
   const session = useSession();
+  console.log(session);
+
   // Define menu items for the dropdown
   const menuItems = [
     {
@@ -66,7 +68,7 @@ const Navbar = () => {
 
       {/* Icons */}
       <div className="flex items-center space-x-4">
-        <h1 className="font-semibold">{session?.data?.user?.name}</h1>
+        <h1 className="font-semibold">{session?.data?.user?.name || ""}</h1>
         <CustomDropdown menuitems={menuItems || []} direction="end">
           <div className="w-8 h-8 rounded-full overflow-hidden cursor-pointer">
             <Image
