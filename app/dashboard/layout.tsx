@@ -3,7 +3,7 @@ import { Roboto, Roboto_Mono } from "next/font/google";
 import "@/app/globals.css";
 import Navbar from "@/components/ui/common/navbar";
 import { SessionProvider } from "next-auth/react";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "@/components/ui/sonner";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -35,17 +35,7 @@ export default function RootLayout({
           <Navbar />
           <div className="max-w-7xl mx-auto">{children}</div>
           {/* Toast container */}
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
+          <Toaster richColors position="bottom-left" />
         </body>
       </SessionProvider>
     </html>
