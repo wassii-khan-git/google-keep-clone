@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Roboto, Roboto_Mono } from "next/font/google";
 import "@/app/globals.css";
 import Navbar from "@/components/ui/common/navbar";
-import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/lib/provider";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -16,8 +16,8 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Google Notes Clone",
-  description: "Google notes clone",
+  title: "Google Keep Clone",
+  description: "Google Keep clone",
 };
 
 export default function RootLayout({
@@ -27,9 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <SessionProvider>
+      <AuthProvider>
         <body
-          className={`${roboto.variable} ${robotoMono.variable} antialiased`}
+          className={`${roboto.className} ${robotoMono.className} antialiased`}
         >
           {/* Navbar */}
           <Navbar />
@@ -37,7 +37,7 @@ export default function RootLayout({
           {/* Toast container */}
           <Toaster richColors position="bottom-left" />
         </body>
-      </SessionProvider>
+      </AuthProvider>
     </html>
   );
 }
