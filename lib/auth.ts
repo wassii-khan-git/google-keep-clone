@@ -1,5 +1,5 @@
 // lib/auth.ts or app/api/auth/[...nextauth]/route.ts
-import NextAuth, { Session } from "next-auth";
+import NextAuth, { NextAuthConfig, Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import DbConnect from "@/lib/db";
@@ -22,7 +22,6 @@ export const authOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-
         try {
           await DbConnect();
 
@@ -68,8 +67,18 @@ export const authOptions = {
     },
     async session({ session, token }): Promise<Session> {
       if (token) {
-        session.user.id = token.userId as string;
-        session.user.provider = token.provider as string;
+        (
+          session.user as typeof session.user & {
+            id?: string;
+            provider?: string;
+          }
+        ).id = token.userId as string;
+        (
+          session.user as typeof session.user & {
+            id?: string;
+            provider?: string;
+          }
+        ).provider = token.provider as string;
       }
       return session;
     },
@@ -111,6 +120,6 @@ export const authOptions = {
     strategy: "jwt" as const,
   },
   secret: process.env.AUTH_SECRET,
-};
+} satisfies NextAuthConfig;
 
 export const { signIn, signOut, auth, handlers } = NextAuth(authOptions);

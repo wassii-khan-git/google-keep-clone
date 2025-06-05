@@ -8,6 +8,18 @@ declare module "next-auth" {
     user: {
       /** The user's postal address. */
       address: string;
+      /** The user's phone number. */
+      phone: string;
+      /** The user's ID. */
+      id: string;
+      /** The user's email. */
+      email: string;
+      /** The user's name. */
+      name: string;
+      /** The user's image URL. */
+      image: string;
+      /** The user's provider (e.g., Google, GitHub). */
+      provider: string;
     };
   }
 }
