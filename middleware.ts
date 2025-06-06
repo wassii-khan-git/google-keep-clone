@@ -4,12 +4,13 @@ import { getToken } from "next-auth/jwt";
 export default async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
-    secret: process.env.AUTH_SECRET,
-    cookieName:
-      process.env.NODE_ENV !== "development"
-        ? "__Secure-next-auth.session-token"
-        : "next-auth.session-token",
+    secret: process.env.NEXTAUTH_SECRET,
   });
+
+  if (!token) {
+    console.log("No token found, user is not authenticated.", token);
+  }
+
   // Use the correct cookie name based on the environment
   const { pathname } = req.nextUrl;
 
