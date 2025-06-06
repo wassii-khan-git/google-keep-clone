@@ -50,13 +50,19 @@ export function SignupForm({
   // store user
   const SignUp = async (values: SignupProps) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/auth/signup`, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
+      if (process.env.NEXT_PUBLIC_API_URL === undefined) {
+        throw new Error("API URL is not defined");
+      }
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/signup`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }
+      );
 
       const data = await response.json();
       console.log(data);
