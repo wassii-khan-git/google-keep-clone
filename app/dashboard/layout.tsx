@@ -27,17 +27,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <AuthProvider>
-        <body
-          className={`${roboto.className} ${robotoMono.className} antialiased`}
-        >
+      <body
+        className={`${roboto.className} ${robotoMono.className} antialiased`}
+      >
+        <AuthProvider>
           {/* Navbar */}
           <Navbar />
           <div className="max-w-7xl mx-auto">{children}</div>
           {/* Toast container */}
           <Toaster richColors position="bottom-left" />
-        </body>
-      </AuthProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }
