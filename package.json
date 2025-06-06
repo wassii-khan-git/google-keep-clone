@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "google-keep-clone",
   "version": "0.1.0",
   "private": true,
