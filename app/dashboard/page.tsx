@@ -1,3 +1,4 @@
+"use client";
 import Note from "@/components/ui/notes/note";
 
 // Home Page
