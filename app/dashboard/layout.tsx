@@ -4,6 +4,8 @@ import "@/app/globals.css";
 import Navbar from "@/components/ui/common/navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/provider";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -20,16 +22,18 @@ export const metadata: Metadata = {
   description: "Google Keep clone",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html lang="en">
       <body
         className={`${roboto.className} ${robotoMono.className} antialiased`}
       >
+        {!session && redirect("/")}
         <AuthProvider>
           {/* Navbar */}
           <Navbar />

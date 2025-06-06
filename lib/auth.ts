@@ -107,17 +107,6 @@ export const authOptions = {
       }
       return true;
     },
-    // Add this redirect callback to handle post-signin redirects
-    async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-
-      // Allows callback URLs on the same origin
-      if (new URL(url).origin === baseUrl) return url;
-
-      // Default redirect to dashboard after successful sign-in
-      return `${baseUrl}/dashboard`;
-    },
   },
   pages: {
     signIn: "/",
