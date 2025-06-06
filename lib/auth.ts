@@ -25,7 +25,6 @@ export const authOptions = {
         try {
           await DbConnect();
 
-          // Find user with password included for comparison
           const user = await UserModel.findOne({
             email: credentials.email,
           }).select("+password");
@@ -42,7 +41,6 @@ export const authOptions = {
             return null;
           }
 
-          // Return user object (password will be excluded from the token)
           return {
             id: user._id.toString(),
             email: user.email,
@@ -58,7 +56,6 @@ export const authOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account }): Promise<JWT> {
-      // Initial sign in
       if (account && user) {
         token.provider = account.provider;
         token.userId = user.id;
@@ -93,7 +90,6 @@ export const authOptions = {
           const existingUser = await UserModel.findOne({ email: user.email });
 
           if (!existingUser) {
-            // Create new user for Google sign-in
             await UserModel.create({
               email: user.email,
               username: user.name,
@@ -111,6 +107,17 @@ export const authOptions = {
       }
       return true;
     },
+    // Add this redirect callback to handle post-signin redirects
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+
+      // Allows callback URLs on the same origin
+      if (new URL(url).origin === baseUrl) return url;
+
+      // Default redirect to dashboard after successful sign-in
+      return `${baseUrl}/dashboard`;
+    },
   },
   pages: {
     signIn: "/",
@@ -120,6 +127,9 @@ export const authOptions = {
     strategy: "jwt" as const,
   },
   secret: process.env.AUTH_SECRET,
+  // Add these additional options for better production handling
+  debug: process.env.NODE_ENV === "development",
+  trustHost: true, // Important for Vercel deployment
 } satisfies NextAuthConfig;
 
 export const { signIn, signOut, auth, handlers } = NextAuth(authOptions);
