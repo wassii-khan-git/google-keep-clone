@@ -126,21 +126,7 @@ export const authOptions = {
   session: {
     strategy: "jwt" as const,
   },
-  cookies: {
-    sessionToken: {
-      name:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-authjs.session-token"
-          : "next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-  },
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   // Add these additional options for better production handling
   debug: process.env.NODE_ENV === "development",
   trustHost: true, // Important for Vercel deployment
