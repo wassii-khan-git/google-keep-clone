@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, notify } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,15 +17,14 @@ import { SignInSchema } from "@/lib/validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { handleSignIn } from "@/lib/actions/auth.action";
 import { GoogleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { getSession, signIn } from "next-auth/react";
+import { toast } from "sonner";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  // use form
   const {
     register,
     handleSubmit,
@@ -41,8 +40,6 @@ export function LoginForm({
   const router = useRouter();
 
   const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
-    console.log(values);
-    // check for the SignIn api
     try {
       const result = await signIn("credentials", {
         email: values.email,
@@ -51,16 +48,36 @@ export function LoginForm({
       });
 
       if (result?.error) {
-        notify({ message: "Invalid email or password", flag: false });
+        toast.error("Invalid email or password");
       } else if (result?.ok) {
-        // Refresh the session and redirect
         await getSession();
+        toast.success("Login successful!");
         router.push("/dashboard");
         router.refresh();
       }
     } catch (err) {
-      console.error("Login error:", err);
-      notify({ message: "An error occurred during login", flag: false });
+      if (err instanceof Error) {
+        toast.error(err.message || "Error signing in");
+      }
+      toast.error("An unexpected error occurred. Please try again later.");
+    }
+  };
+
+  // Fixed Google sign-in handler
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signIn("google", {
+        callbackUrl: "/dashboard", // Explicitly set callback URL
+        redirect: false,
+      });
+
+      if (result?.url) {
+        // Redirect to the URL returned by NextAuth
+        window.location.href = result.url;
+      }
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      toast.error("Failed to sign in with Google");
     }
   };
 
@@ -87,7 +104,6 @@ export function LoginForm({
                   autoComplete="email"
                   className={`${errors.email && "border border-red-500"}`}
                 />
-                {/* errors */}
                 {errors.email && (
                   <label className="text-sm text-red-500">
                     {errors.email.message}
@@ -105,7 +121,6 @@ export function LoginForm({
                   placeholder="12345678"
                   className={`${errors.password && "border border-red-500"}`}
                 />
-                {/* errors */}
                 {errors.password && (
                   <label className="text-sm text-red-500">
                     {errors.password.message}
@@ -120,12 +135,11 @@ export function LoginForm({
                 >
                   {isSubmitting ? <LoadingOutlined /> : "Login"}
                 </Button>
-                {/* login with google */}
                 <Button
                   type="button"
                   variant="outline"
                   className="w-full mt-3"
-                  onClick={() => handleSignIn("/dashboard")}
+                  onClick={handleGoogleSignIn}
                   disabled={isSubmitting}
                 >
                   <GoogleOutlined /> Login with Google
