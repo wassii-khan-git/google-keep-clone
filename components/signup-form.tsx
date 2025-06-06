@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, notify } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LoadingOutlined } from "@ant-design/icons";
+import { toast } from "sonner";
 
 interface SignupProps {
   username: string;
@@ -49,31 +50,31 @@ export function SignupForm({
   // store user
   const SignUp = async (values: SignupProps) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`,
-        {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const response = await fetch(`http://localhost:3000/api/auth/signup`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
 
       const data = await response.json();
       console.log(data);
       if (data.success) {
-        notify({ message: data.message, flag: data.success });
+        toast.success(data.message || "Signup successful");
         reset();
         setTimeout(() => {
           router.push("/"); // redirect to Login page
         }, 2000);
       } else {
-        notify({ message: data.message, flag: data.success || false });
+        toast.error(data.message || "Signup Failed!");
       }
     } catch (error) {
       console.log(error);
-      notify({ message: "Error occurred", flag: false });
+      if (error instanceof Error) {
+        toast.error(error.message || "Signup Failed!");
+      }
+      toast.error("Error occurred");
     }
   };
 
