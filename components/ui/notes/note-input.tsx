@@ -28,7 +28,7 @@ const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
             });
             e.stopPropagation();
           }}
-          tooltipText="Add Image"
+          tooltipText="Take a note with image"
         />
       </div>
     </div>
