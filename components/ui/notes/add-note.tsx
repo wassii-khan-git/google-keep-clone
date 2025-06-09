@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import TooltipButton from "../common/custom-tooltip";
 import { CreateNote } from "@/lib/actions/notes.actions";
 import { INote } from "@/models/tasks.model";
+import { useSession } from "next-auth/react";
 
 interface CreateNoteResponse {
   success?: boolean;
@@ -24,6 +25,8 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
   const noteRef = useRef<HTMLDivElement>(null);
   // input height
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  // session
+  const session = useSession();
 
   // Auto-resize textarea
   const adjustTextareaHeight = () => {
@@ -42,7 +45,11 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
       console.log("Note is empty");
       return;
     }
-    const response = await CreateNote({ title, note });
+    const response = await CreateNote({
+      title,
+      note,
+      userId: session?.data?.user?.id as string,
+    });
     console.log("Response from CreateNote:", response);
 
     if (response.success) {
@@ -50,7 +57,7 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
       setTitle("");
       setNote("");
     }
-  }, [title, note, ToggleHandler]);
+  }, [title, note, session, ToggleHandler]);
 
   // clickaawy
   useEffect(() => {
