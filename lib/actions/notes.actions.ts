@@ -8,6 +8,7 @@ import { NoteSchemaValidation } from "../validator";
 export interface CreateNotePayload {
   title?: string | null;
   note: string;
+  userId: string;
 }
 // Delete Note Payload interface
 export interface DeleteNotePayload {
@@ -18,6 +19,7 @@ export interface NotePayloadReturn {
   success: boolean;
   message: string;
   data?: INote[] | INote | null;
+  flag?: boolean;
 }
 
 // update note payload interface
@@ -43,7 +45,10 @@ export const CreateNote = async (
     // connect to the database
     await DbConnect();
     // create a new note
-    const newNote = new NotesModel({ ...validation.data });
+    const newNote = new NotesModel({
+      ...validation.data,
+      userId: payload.userId.toString(),
+    });
     // save the note to the database
     const savedNote = await newNote.save();
 
@@ -63,12 +68,23 @@ export const CreateNote = async (
 };
 
 // get all notes function
-export const GetAllNotes = async (): Promise<NotePayloadReturn> => {
+export const GetAllNotes = async ({
+  userId,
+  archive,
+}: {
+  userId?: string;
+  archive?: boolean;
+}): Promise<NotePayloadReturn> => {
   try {
     // connect to the database
     await DbConnect();
     // get all notes from the database
-    const notes = await NotesModel.find({}).sort({ createdAt: -1 });
+    const notes = await NotesModel.find({
+      userId: userId,
+      isArchived: archive,
+    }).sort({
+      createdAt: -1,
+    });
     // return the notes
     return {
       success: true,
@@ -113,6 +129,93 @@ export const DeleteNote = async ({
       success: false,
       message: `Error deleting note: ${error}`,
       data: null,
+    };
+  }
+};
+
+// set the note to archive
+export const ArchiveNote = async ({
+  noteId,
+  userId,
+}: {
+  noteId: string;
+  userId: string;
+}): Promise<NotePayloadReturn> => {
+  try {
+    // find the note
+    const note = await NotesModel.findOne({
+      _id: noteId,
+      userId,
+    });
+    // note
+    if (!note) {
+      return { success: false, message: "No note found against this userId" };
+    }
+
+    note.isArchived = true;
+
+    await note.save();
+
+    return {
+      success: true,
+      message: "Note archived successfully",
+      data: JSON.parse(JSON.stringify(note)) as INote,
+    };
+  } catch (e) {
+    if (e instanceof Error) {
+      return {
+        success: false,
+        message: e.message,
+      };
+    }
+    return {
+      success: false,
+      message: "Failed to archive the note",
+    };
+  }
+};
+
+// set the note to archive
+export const PinnedNote = async ({
+  noteId,
+  userId,
+  flag,
+}: {
+  noteId: string;
+  userId: string;
+  flag: boolean;
+}): Promise<NotePayloadReturn> => {
+  try {
+    // find the note
+    const note = await NotesModel.findOne({
+      _id: noteId,
+      userId,
+    });
+    // note
+    if (!note) {
+      return { success: false, message: "No note found against this userId" };
+    }
+
+    note.isPinned = flag;
+
+    await note.save();
+
+    return {
+      success: true,
+      message: `Note ${flag ? "Pinned" : "Unpinned"} successfully`,
+      flag,
+      data: JSON.parse(JSON.stringify(note)) as INote,
+    };
+  } catch (e) {
+    if (e instanceof Error) {
+      return {
+        success: false,
+        message: e.message,
+      };
+    }
+    return {
+      success: false,
+      message: "Failed to archive the note",
     };
   }
 };
