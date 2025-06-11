@@ -203,7 +203,6 @@ export const PinnedNote = async ({
     return {
       success: true,
       message: `Note ${flag ? "Pinned" : "Unpinned"} successfully`,
-      flag,
       data: JSON.parse(JSON.stringify(note)) as INote,
     };
   } catch (e) {

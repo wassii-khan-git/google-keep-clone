@@ -58,7 +58,22 @@ export const authOptions = {
     async jwt({ token, user, account }): Promise<JWT> {
       if (account && user) {
         token.provider = account.provider;
-        token.userId = user.id;
+
+        // For Google sign-in, fetch the user from database to get the actual DB ID
+        if (account.provider === "google") {
+          try {
+            await DbConnect();
+            const dbUser = await UserModel.findOne({ email: user.email });
+            if (dbUser) {
+              token.userId = dbUser._id.toString();
+            }
+          } catch (error) {
+            console.error("Error fetching user in JWT callback:", error);
+          }
+        } else {
+          // For credentials, user.id is already the DB ID
+          token.userId = user.id;
+        }
       }
       return token;
     },
@@ -99,6 +114,10 @@ export const authOptions = {
               emailVerified: new Date(),
             });
           }
+
+          // Update the user object with the database ID
+          user.id = existingUser._id.toString();
+
           return true;
         } catch (error) {
           console.error("Google sign-in error:", error);
@@ -116,9 +135,8 @@ export const authOptions = {
     strategy: "jwt" as const,
   },
   secret: process.env.NEXTAUTH_SECRET,
-  // Add these additional options for better production handling
   debug: process.env.NODE_ENV === "development",
-  trustHost: true, // Important for Vercel deployment
+  trustHost: true,
 } satisfies NextAuthConfig;
 
 export const { signIn, signOut, auth, handlers } = NextAuth(authOptions);
