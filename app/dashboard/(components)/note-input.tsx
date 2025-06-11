@@ -1,7 +1,8 @@
 import React from "react";
-import TooltipButton from "../common/custom-tooltip";
+
 import { PictureOutlined } from "@ant-design/icons";
 import { notify } from "@/lib/utils";
+import TooltipButton from "@/components/ui/custom-tooltip";
 
 // Define the props for the TakeNote component
 interface TakeNoteProps {
@@ -28,7 +29,7 @@ const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
             });
             e.stopPropagation();
           }}
-          tooltipText="Add Image"
+          tooltipText="Take a note with image"
         />
       </div>
     </div>

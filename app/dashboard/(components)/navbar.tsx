@@ -9,8 +9,7 @@ import Image from "next/image";
 import React from "react";
 import { useSession } from "next-auth/react";
 import { handleSignOut } from "@/lib/actions/auth.action";
-
-import CustomDropdown from "./custom-dropdown";
+import CustomDropdown from "@/components/ui/custom-dropdown";
 
 const Navbar = () => {
   // session

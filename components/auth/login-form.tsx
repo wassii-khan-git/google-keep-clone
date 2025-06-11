@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { GoogleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { getSession, signIn } from "next-auth/react";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export function LoginForm({
   className,
@@ -38,6 +39,8 @@ export function LoginForm({
   });
 
   const router = useRouter();
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
     try {
@@ -66,16 +69,19 @@ export function LoginForm({
   // Fixed Google sign-in handler
   const handleGoogleSignIn = async () => {
     try {
+      setLoading(true);
       const result = await signIn("google", {
         callbackUrl: "/dashboard", // Explicitly set callback URL
         redirect: false,
       });
 
       if (result?.url) {
+        setLoading(false);
         // Redirect to the URL returned by NextAuth
         window.location.href = result.url;
       }
     } catch (error) {
+      setLoading(false);
       console.error("Google sign-in error:", error);
       toast.error("Failed to sign in with Google");
     }
@@ -138,11 +144,20 @@ export function LoginForm({
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full mt-3"
+                  className={`w-full mt-3 cursor-pointer ${
+                    loading && "cursor-not-allowed"
+                  } `}
                   onClick={handleGoogleSignIn}
                   disabled={isSubmitting}
                 >
-                  <GoogleOutlined /> Login with Google
+                  {loading ? (
+                    <LoadingOutlined />
+                  ) : (
+                    <label className="cursor-pointer">
+                      <GoogleOutlined className="cursor-pointer ml-2 " /> Login
+                      with Google
+                    </label>
+                  )}
                 </Button>
               </div>
             </div>

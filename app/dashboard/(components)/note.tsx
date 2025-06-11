@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import AddNote from "./add-note";
 import { notify } from "@/lib/utils";
 import { INote } from "@/models/tasks.model";
+import React, { useState } from "react";
 import TakeNote from "./note-input";
+import AddNote from "./add-note";
 import NoteList from "./note-list";
 
 export interface ToggleHandlerProps {

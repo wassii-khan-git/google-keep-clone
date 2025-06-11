@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Roboto, Roboto_Mono } from "next/font/google";
 import "@/app/globals.css";
-import Navbar from "@/components/ui/common/navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/provider";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import Navbar from "./(components)/navbar";
 
 const roboto = Roboto({
   variable: "--font-roboto",

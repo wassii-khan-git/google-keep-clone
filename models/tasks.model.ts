@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema, models } from "mongoose";
 
 export interface INote extends Document {
+  userId?: string;
   title?: string;
   note: string;
   isPinned?: boolean;
@@ -11,6 +12,10 @@ export interface INote extends Document {
 
 const NoteSchema = new Schema<INote>(
   {
+    userId: {
+      type: String,
+      required: true,
+    },
     title: {
       type: String,
       trim: true,
