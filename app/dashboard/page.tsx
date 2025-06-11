@@ -1,4 +1,4 @@
-import Note from "@/components/ui/notes/note";
+import Note from "./(components)/note";
 
 // Home Page
 export default async function Home() {
