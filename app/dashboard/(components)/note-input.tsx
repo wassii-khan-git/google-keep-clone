@@ -12,7 +12,7 @@ interface TakeNoteProps {
 const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
   return (
     <div
-      className="hover:shadow-md p-2.5 ml-4 w-[26rem] md:mx-auto border rounded-sm cursor-pointer"
+      className="hover:shadow-md p-2.5 ml-4 md:m-0 md:w-[26rem] md:mx-auto border rounded-sm cursor-pointer"
       onClick={() => ToggleHandler({})}
     >
       <div className="flex items-center justify-between ">

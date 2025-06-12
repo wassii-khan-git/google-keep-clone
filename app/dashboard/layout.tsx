@@ -9,7 +9,6 @@ import Navbar from "./(components)/navbar";
 
 const roboto_Slab = Roboto_Slab({
   subsets: ["latin"],
-  weight: ["400", "700"],
   variable: "--font-roboto-slab",
 });
 
@@ -26,7 +25,7 @@ export default async function RootLayout({
   const session = await auth();
   return (
     <html lang="en">
-      <body className={`antialiased`}>
+      <body className={`${roboto_Slab.className} antialiased`}>
         {!session && redirect("/")}
         <AuthProvider>
           {/* Navbar */}

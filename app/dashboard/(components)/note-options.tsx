@@ -1,5 +1,8 @@
+// NoteOptions.tsx - Fixed component
 import { Button } from "@/components/ui/button";
-import CustomDropdown from "@/components/ui/custom-dropdown";
+import CustomDropdown, {
+  MoreOperationsItem,
+} from "@/components/ui/custom-dropdown";
 import TooltipButton from "@/components/ui/custom-tooltip";
 import {
   BgColorsOutlined,
@@ -15,78 +18,74 @@ import { toast } from "sonner";
 interface NoteOptionsProps {
   setIsMoreClicked: (value: boolean) => void;
   isMoreClicked: boolean;
-  menuitems?: () => {
-    title: string;
-    icon: React.ReactNode;
-    isClickable: true;
-    handleClick: () => Promise<void>;
-  }[];
+  moreOperationsItems: MoreOperationsItem[]; // Fixed type - should be array
 }
 
 const NoteOptions = ({
   setIsMoreClicked,
   isMoreClicked,
-  menuitems,
+  moreOperationsItems,
 }: NoteOptionsProps) => {
   // note options menu items
   const bottomOptions = [
     {
       title: "More Options",
-      icon: <MoreOutlined className=" text-gray-500" />,
+      icon: <MoreOutlined className="text-gray-500" />,
       isClickable: false,
       isDropDown: true,
+      childs: moreOperationsItems,
     },
     {
       title: "Archive Note",
       icon: <FolderAddOutlined />,
       isClickable: true,
       isDropDown: false,
+      childs: [],
     },
     {
       title: "Add Image",
       icon: <PictureOutlined />,
       isClickable: true,
       isDropDown: false,
+      childs: [],
     },
     {
       title: "Add Collaborator",
       icon: <UsergroupAddOutlined />,
       isClickable: true,
       isDropDown: false,
+      childs: [],
     },
     {
       title: "Add Reminder",
       icon: <NotificationOutlined />,
       isClickable: true,
       isDropDown: false,
+      childs: [],
     },
     {
       title: "Add Background",
       icon: <BgColorsOutlined />,
       isClickable: true,
       isDropDown: false,
+      childs: [],
     },
   ];
+
   return (
     <div className="flex items-center justify-end mt-5 gap-1 opacity-0 group-hover:opacity-100">
-      {/* Background Options */}
       {bottomOptions.reverse().map((item, index) => (
         <React.Fragment key={index}>
           {item.isDropDown ? (
-            <CustomDropdown
-              menuitems={menuitems ? menuitems() : []}
-              direction="start"
-            >
+            <CustomDropdown menuitems={item.childs} direction="start">
               <Button
                 variant="outline"
                 size="sm"
                 className="h-8 w-8 p-0 rounded-full"
                 onClick={() => setIsMoreClicked(!isMoreClicked)}
               >
-                <TooltipButton
-                  icon={<MoreOutlined className=" text-gray-500" />}
-                  tooltipText={isMoreClicked ? "" : "Open menu"}
-                />
+                <MoreOutlined className="text-gray-500" />
+                <span className="sr-only">Open menu</span>
               </Button>
             </CustomDropdown>
           ) : (
@@ -94,7 +93,7 @@ const NoteOptions = ({
               key={index}
               icon={item.icon}
               onClick={() =>
-                toast.error("Add Background feature is not implemented yet")
+                toast.error(`${item.title} feature is not implemented yet`)
               }
               tooltipText={item.title}
             />

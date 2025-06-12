@@ -73,8 +73,8 @@ const Navbar = () => {
       </div>
 
       {/* Icons */}
-      <div className="flex items-center">
-        {/* <h1 className="font-semibold">{session?.data?.user?.name || ""}</h1> */}
+      <div className="flex items-center flex-shrink-0">
+        <h1 className="font-medium mr-3">{session?.data?.user?.name || ""}</h1>
         <CustomDropdown menuitems={menuItems || []} direction="end">
           <div className="w-8 h-8 rounded-full overflow-hidden cursor-pointer">
             <Image
