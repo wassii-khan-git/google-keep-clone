@@ -14,10 +14,9 @@ interface CreateNoteResponse {
 
 interface NoteProps {
   ToggleHandler: ({ success, data }: CreateNoteResponse) => void;
-  isOpen?: boolean;
 }
 
-const AddNote = ({ ToggleHandler, isOpen }: NoteProps) => {
+const AddNote = ({ ToggleHandler }: NoteProps) => {
   // title
   const [title, setTitle] = useState<string>("");
   // note
@@ -75,9 +74,7 @@ const AddNote = ({ ToggleHandler, isOpen }: NoteProps) => {
   return (
     <div
       ref={noteRef}
-      className={`hover:border-gray-500 p-3 w-full ${
-        isOpen && "w-full border-none"
-      } md:w-[30rem] mx-auto border rounded-sm shadow `}
+      className={`hover:border-gray-500 p-3 w-full md:w-[30rem] mx-auto border rounded-sm shadow `}
     >
       <div className="flex justify-between mt-2 mb-2">
         {/* title */}
@@ -93,14 +90,12 @@ const AddNote = ({ ToggleHandler, isOpen }: NoteProps) => {
         />
         {/* close */}
 
-        {!isOpen && (
-          <TooltipButton
-            idx={1}
-            icon={<CloseOutlined />}
-            onClick={() => ToggleHandler({ success: false })}
-            tooltipText="Close Note"
-          />
-        )}
+        <TooltipButton
+          idx={1}
+          icon={<CloseOutlined />}
+          onClick={() => ToggleHandler({ success: false })}
+          tooltipText="Close Note"
+        />
       </div>
       {/* details */}
       <textarea
