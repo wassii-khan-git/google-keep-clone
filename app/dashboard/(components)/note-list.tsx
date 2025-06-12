@@ -2,10 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import {
+  BgColorsOutlined,
+  FolderAddOutlined,
   LoadingOutlined,
   MoreOutlined,
+  NotificationOutlined,
+  PictureOutlined,
   PushpinFilled,
   PushpinOutlined,
+  UsergroupAddOutlined,
 } from "@ant-design/icons";
 import {
   ArchiveNote,
@@ -22,7 +27,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import CustomDropdown from "@/components/ui/custom-dropdown";
 import TooltipButton from "@/components/ui/custom-tooltip";
-import NoteDetailsDailog from "./note-dialog";
+import NoteOptions from "./note-options";
 
 interface NoteProps {
   data: INote;
@@ -37,7 +42,8 @@ const NoteList = ({ data }: NoteProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   // get the logged in user id
   const session = useSession();
-
+  // more options clicked
+  const [isMoreClicked, setIsMoreClicked] = useState<boolean>(false);
   // fetch notes function
   const fetchNotes = async (id: string) => {
     try {
@@ -241,7 +247,7 @@ const NoteList = ({ data }: NoteProps) => {
                   size="sm"
                   className="h-8 w-8 p-0 rounded-full"
                 >
-                  <MoreOutlined className="text-xl text-gray-500" />
+                  <MoreOutlined className=" text-gray-500" />
                   <span className="sr-only">Open menu</span>
                 </Button>
               </CustomDropdown>
@@ -265,56 +271,42 @@ const NoteList = ({ data }: NoteProps) => {
             <div key={index}>
               {/* Note item */}
               {!item.isPinned && (
-                <NoteDetailsDailog
-                  title="Note Details"
-                  description="View Note Details"
-                  trigger={
-                    <div className="note min-h-34 h-fit p-5 border border-gray-300 hover:border-gray-500 rounded-sm transition-colors duration-200">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-800 truncate pr-2">
-                          {item.title || "Untitled Note"}
-                        </h3>
-                        <TooltipButton
-                          icon={
-                            <PushpinOutlined className="text-xl cursor-pointer text-gray-500 hover:text-gray-700" />
-                          }
-                          onClick={() => pinUnpinNote(item as INote, true)}
-                          tooltipText="Pin Note"
-                        />
-                      </div>
-
-                      <p className="text-gray-600 mt-3 text-sm leading-relaxed">
-                        {item.note.split("\n").map((line, idx) => (
-                          <span key={idx}>
-                            {line}
-                            <br />
-                          </span>
-                        ))}
-                      </p>
-
-                      <div className="flex items-center justify-end mt-3">
-                        <CustomDropdown
-                          menuitems={menuitems(item)}
-                          direction="start"
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 p-0 rounded-full"
-                          >
-                            <MoreOutlined className="text-xl text-gray-500" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </CustomDropdown>
-                      </div>
+                <div className="group min-h-34 h-fit p-5 border border-gray-300 hover:shadow-md rounded-sm transition-colors duration-200">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold text-gray-800 truncate pr-2">
+                      {item.title || "Untitled Note"}
+                    </h3>
+                    <div className="opacity-0 group-hover:opacity-100">
+                      <TooltipButton
+                        icon={
+                          <PushpinOutlined className=" cursor-pointer text-gray-500 hover:text-gray-700" />
+                        }
+                        onClick={() => pinUnpinNote(item as INote, true)}
+                        tooltipText="Pin Note"
+                      />
                     </div>
-                  }
-                />
+                  </div>
+
+                  <p className="text-gray-600 mt-3 text-sm leading-relaxed">
+                    {item.note.split("\n").map((line, idx) => (
+                      <span key={idx}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                  </p>
+
+                  {/* Bottom icons */}
+                  <NoteOptions
+                    setIsMoreClicked={setIsMoreClicked}
+                    isMoreClicked={isMoreClicked}
+                  />
+                </div>
               )}
             </div>
           ))
         ) : (
-          <EmptyNotes />
+          notes.length === 0 && pinnedNotes.length === 0 && <EmptyNotes />
         )}
       </div>
     </div>

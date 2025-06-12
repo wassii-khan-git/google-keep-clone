@@ -9,37 +9,38 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import React from "react";
-import AddNote from "./add-note";
 
 interface NoteDetailsDialogProps {
   title: string;
   description: string;
   trigger: React.ReactNode;
-  onClose?: () => void;
 }
 
 export default function NoteDetailsDialog({
   title,
   description,
   trigger,
-  onClose,
 }: NoteDetailsDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="bg-none m-0 p-0 w-full">
-        {/* add note */}
-        <div className="padding-0 m-0 w-full">
-          <AddNote ToggleHandler={() => {}} isOpen={true} />
-        </div>
+      <DialogContent className="">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <p>
+          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Unde
+          nesciunt quia numquam optio ipsum maxime dolore? Incidunt sint commodi
+          debitis at, sunt culpa aperiam maiores dolore ab magni odio
+          voluptatum.
+        </p>
+
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button>Close</Button>
           </DialogClose>
-          <Button type="submit">Save changes</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

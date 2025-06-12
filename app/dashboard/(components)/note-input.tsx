@@ -1,8 +1,8 @@
 import React from "react";
 
-import { PictureOutlined } from "@ant-design/icons";
-import { notify } from "@/lib/utils";
+import { CheckSquareOutlined, PictureOutlined } from "@ant-design/icons";
 import TooltipButton from "@/components/ui/custom-tooltip";
+import { toast } from "sonner";
 
 // Define the props for the TakeNote component
 interface TakeNoteProps {
@@ -12,7 +12,7 @@ interface TakeNoteProps {
 const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
   return (
     <div
-      className="hover:border-gray-500 p-2.5 w-full md:w-[30rem] mx-auto border rounded-sm shadow cursor-pointer"
+      className="hover:shadow-md p-2.5 ml-4 w-[26rem] md:mx-auto border rounded-sm cursor-pointer"
       onClick={() => ToggleHandler({})}
     >
       <div className="flex items-center justify-between ">
@@ -20,17 +20,28 @@ const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
         <label className="ml-2 text-gray-500 cursor-pointer font-semibold">
           Take a note
         </label>
-        <TooltipButton
-          icon={<PictureOutlined className="text-xl" />}
-          onClick={(e: React.MouseEvent) => {
-            notify({
-              message: "Add Image feature coming soon",
-              flag: false,
-            });
-            e.stopPropagation();
-          }}
-          tooltipText="Take a note with image"
-        />
+
+        {/* icons */}
+        <div className="flex items-center">
+          <TooltipButton
+            idx={1}
+            icon={<CheckSquareOutlined className="text-xl" />}
+            tooltipText="Add checkbox"
+            onClick={(e) => {
+              e.stopPropagation();
+              toast.error("This feature is not implemented yet.");
+            }}
+          />
+          <TooltipButton
+            idx={4}
+            icon={<PictureOutlined className="text-xl" />}
+            tooltipText="Add drawing"
+            onClick={(e) => {
+              e.stopPropagation();
+              toast.error("This feature is not implemented yet.");
+            }}
+          />
+        </div>
       </div>
     </div>
   );
