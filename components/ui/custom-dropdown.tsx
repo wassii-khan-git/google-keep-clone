@@ -26,7 +26,7 @@ const CustomDropdown = ({
   direction,
 }: DropdownMenuProps) => {
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         {/* User Avatar */}
         {children}
@@ -35,7 +35,7 @@ const CustomDropdown = ({
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {menuitems.map((item, index = 1) => (
+          {menuitems.map((item, index) => (
             <React.Fragment key={index}>
               <DropdownMenuItem
                 onClick={() => item.isClickable && item.handleClick?.()}
@@ -46,7 +46,7 @@ const CustomDropdown = ({
                 {item.icon}
                 <span>{item.title}</span>
               </DropdownMenuItem>
-              {/* Add separator after the last item */}
+              {/* Add separator after the second-to-last item */}
               {index === menuitems.length - 2 && <DropdownMenuSeparator />}
             </React.Fragment>
           ))}
