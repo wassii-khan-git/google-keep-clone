@@ -2,15 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  BgColorsOutlined,
-  FolderAddOutlined,
   LoadingOutlined,
   MoreOutlined,
-  NotificationOutlined,
-  PictureOutlined,
   PushpinFilled,
   PushpinOutlined,
-  UsergroupAddOutlined,
 } from "@ant-design/icons";
 import {
   ArchiveNote,
@@ -25,7 +20,9 @@ import { Trash2, Copy, Archive } from "lucide-react";
 import EmptyNotes from "./empty-note";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import CustomDropdown from "@/components/ui/custom-dropdown";
+import CustomDropdown, {
+  MoreOperationsItem,
+} from "@/components/ui/custom-dropdown";
 import TooltipButton from "@/components/ui/custom-tooltip";
 import NoteOptions from "./note-options";
 
@@ -44,6 +41,7 @@ const NoteList = ({ data }: NoteProps) => {
   const session = useSession();
   // more options clicked
   const [isMoreClicked, setIsMoreClicked] = useState<boolean>(false);
+
   // fetch notes function
   const fetchNotes = async (id: string) => {
     try {
@@ -109,7 +107,7 @@ const NoteList = ({ data }: NoteProps) => {
     }
   };
 
-  // Archive note function (placeholder)
+  // Archive note function
   const archiveNote = async (note: INote) => {
     try {
       const response = await ArchiveNote({
@@ -117,9 +115,7 @@ const NoteList = ({ data }: NoteProps) => {
         userId: session?.data?.user.id as string,
       });
       if (response.success) {
-        // display the alert
         toast.success(response.message || "Note is archived");
-        // remove the archive note
         const filterNote = notes.filter((item) => item._id !== note._id);
         setNotes(filterNote);
       } else {
@@ -132,7 +128,7 @@ const NoteList = ({ data }: NoteProps) => {
     }
   };
 
-  // Archive note function (placeholder)
+  // Pin/Unpin note function
   const pinUnpinNote = async (note: INote, flag: boolean) => {
     try {
       const response = await PinnedNote({
@@ -142,24 +138,17 @@ const NoteList = ({ data }: NoteProps) => {
       });
       if (response.success) {
         const noteObj = response.data as INote;
-        // if the note is pinned
         if (noteObj.isPinned) {
-          // display the alert
           toast.success(response.message);
-          // add the pinned note the filtered notes
           setPinnedNotes((prevNotes) => [noteObj, ...prevNotes]);
-          // remove the note from the notes array
           setNotes((prevNotes) =>
             prevNotes.filter((item) => item._id !== noteObj._id)
           );
         } else if (!noteObj.isPinned) {
-          // if the note is unpinned
           toast.success(response.message);
-          // remove the pinned note from the filtered notes
           setPinnedNotes((prevNotes) =>
             prevNotes.filter((item) => item._id !== noteObj._id)
           );
-          // add the unpinned note to the notes array
           setNotes((prevNotes) => [noteObj, ...prevNotes]);
         }
       } else {
@@ -174,7 +163,9 @@ const NoteList = ({ data }: NoteProps) => {
 
   // Fetch notes on component mount
   useEffect(() => {
-    fetchNotes(session.data?.user.id as string);
+    if (session.data?.user.id) {
+      fetchNotes(session.data.user.id);
+    }
   }, [session]);
 
   // If data is provided, add it to the notes
@@ -184,8 +175,8 @@ const NoteList = ({ data }: NoteProps) => {
     }
   }, [data]);
 
-  // Menu items for each note
-  const menuitems = (item: INote) => [
+  // Menu items for each note - Fixed return type
+  const menuitems = (item: INote): MoreOperationsItem[] => [
     {
       title: "Make a Copy",
       icon: <Copy className="mr-2 h-4 w-4" />,
@@ -212,7 +203,7 @@ const NoteList = ({ data }: NoteProps) => {
       {pinnedNotes.length > 0 && (
         <h2 className="text-sm font-semibold text-gray-800 mb-2">Pinned</h2>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
         {pinnedNotes.map((item, index) => (
           <div
             key={index}
@@ -247,7 +238,7 @@ const NoteList = ({ data }: NoteProps) => {
                   size="sm"
                   className="h-8 w-8 p-0 rounded-full"
                 >
-                  <MoreOutlined className=" text-gray-500" />
+                  <MoreOutlined className="text-gray-500" />
                   <span className="sr-only">Open menu</span>
                 </Button>
               </CustomDropdown>
@@ -255,13 +246,14 @@ const NoteList = ({ data }: NoteProps) => {
           </div>
         ))}
       </div>
+
       {/* Note list */}
       {pinnedNotes.length > 0 && notes.length > 0 && (
         <h2 className="text-sm font-semibold text-gray-800 mb-2">
           Others {notes.length}
         </h2>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
         {loading ? (
           <div className="flex items-center justify-center col-span-4">
             <LoadingOutlined className="text-3xl text-yellow-500" />
@@ -279,7 +271,7 @@ const NoteList = ({ data }: NoteProps) => {
                     <div className="opacity-0 group-hover:opacity-100">
                       <TooltipButton
                         icon={
-                          <PushpinOutlined className=" cursor-pointer text-gray-500 hover:text-gray-700" />
+                          <PushpinOutlined className="cursor-pointer text-gray-500 hover:text-gray-700" />
                         }
                         onClick={() => pinUnpinNote(item as INote, true)}
                         tooltipText="Pin Note"
@@ -300,6 +292,7 @@ const NoteList = ({ data }: NoteProps) => {
                   <NoteOptions
                     setIsMoreClicked={setIsMoreClicked}
                     isMoreClicked={isMoreClicked}
+                    moreOperationsItems={menuitems(item as INote)} // Fixed - now passes array
                   />
                 </div>
               )}
