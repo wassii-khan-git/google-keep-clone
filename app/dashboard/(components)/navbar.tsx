@@ -7,19 +7,22 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import Image from "next/image";
-import React from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { useSession } from "next-auth/react";
 import { handleSignOut } from "@/lib/actions/auth.action";
 import CustomDropdown, {
   MoreOperationsItem,
 } from "@/components/ui/custom-dropdown";
 import TooltipButton from "@/components/ui/custom-tooltip";
-import { toast } from "sonner";
 
-const Navbar = () => {
+interface NavbarProps {
+  setIsMenuClicked: Dispatch<SetStateAction<boolean>>;
+  isMenuClicked: boolean;
+}
+
+const Navbar = ({ setIsMenuClicked, isMenuClicked }: NavbarProps) => {
   // session
   const session = useSession();
-  console.log(session);
 
   // Define menu items for the dropdown
   const menuItems: MoreOperationsItem[] = [
@@ -43,13 +46,18 @@ const Navbar = () => {
     },
   ];
 
+  const handleMenuToggle = () => {
+    // localStorage.setItem("menuToggle", JSON.stringify({ isMenuClicked: true }));
+    setIsMenuClicked(!isMenuClicked);
+  };
+
   return (
-    <header className="px-2 sm:px-4 py-2 flex items-center shadow-md">
+    <div className="px-2 sm:px-4 py-2 flex items-center shadow-md">
       {/* Hamburger Menu */}
       <TooltipButton
         icon={<MenuOutlined />}
         tooltipText="Main menu"
-        onClick={() => toast.success("Menu clicked")}
+        onClick={handleMenuToggle}
       />
 
       {/* Logo */}
@@ -63,7 +71,7 @@ const Navbar = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="flex-1 mx-2 sm:mx-4 md:mx-10 min-w-0">
+      <div className="flex-1 mx-2 sm:mx-4 md:mx-23 min-w-0">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <SearchOutlined />
@@ -94,7 +102,7 @@ const Navbar = () => {
           </div>
         </CustomDropdown>
       </div>
-    </header>
+    </div>
   );
 };
 
