@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Roboto_Slab } from "next/font/google";
+import { Roboto_Slab, Open_Sans } from "next/font/google";
 import "@/app/globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/provider";
@@ -7,9 +7,10 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Navbar from "./(components)/navbar";
 
-const roboto_Slab = Roboto_Slab({
+const openSans = Open_Sans({
   subsets: ["latin"],
-  variable: "--font-roboto-slab",
+  variable: "--font-sans",
+  weight: ["500"],
 });
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default async function RootLayout({
   const session = await auth();
   return (
     <html lang="en">
-      <body className={`${roboto_Slab.className} antialiased`}>
+      <body className={`${openSans.variable} antialiased`}>
         {!session && redirect("/")}
         <AuthProvider>
           {/* Navbar */}
