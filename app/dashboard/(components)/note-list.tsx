@@ -1,7 +1,9 @@
+// NoteList.tsx - Updated with hover state management
 "use client";
 
 import React, { useEffect, useState } from "react";
 import {
+  CheckCircleFilled,
   LoadingOutlined,
   MoreOutlined,
   PushpinFilled,
@@ -41,6 +43,14 @@ const NoteList = ({ data }: NoteProps) => {
   const session = useSession();
   // more options clicked
   const [isMoreClicked, setIsMoreClicked] = useState<boolean>(false);
+  // is note selected
+  const [isNoteSelected, setIsNoteSelected] = useState<boolean>(false);
+  // selected id
+  const [selectedIds, setSelectedIds] = useState<Array<string>>([]);
+  // Add hover state for each note
+  const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
+  // Track dropdown open state for each note
+  const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set());
 
   // fetch notes function
   const fetchNotes = async (id: string) => {
@@ -161,6 +171,24 @@ const NoteList = ({ data }: NoteProps) => {
     }
   };
 
+  // Handle dropdown open/close
+  const handleDropdownOpenChange = (noteId: string, isOpen: boolean) => {
+    setOpenDropdowns((prev) => {
+      const newSet = new Set(prev);
+      if (isOpen) {
+        newSet.add(noteId);
+      } else {
+        newSet.delete(noteId);
+      }
+      return newSet;
+    });
+  };
+
+  // Check if note should show hover effects
+  const shouldShowHoverEffects = (noteId: string) => {
+    return hoveredNoteId === noteId || openDropdowns.has(noteId);
+  };
+
   // Fetch notes on component mount
   useEffect(() => {
     if (session.data?.user.id) {
@@ -196,6 +224,8 @@ const NoteList = ({ data }: NoteProps) => {
       handleClick: () => deleteNote(item._id as string),
     },
   ];
+
+  console.log(isNoteSelected);
 
   return (
     <div className="mx-auto p-5">
@@ -249,9 +279,7 @@ const NoteList = ({ data }: NoteProps) => {
 
       {/* Note list */}
       {pinnedNotes.length > 0 && notes.length > 0 && (
-        <h2 className="text-sm font-semibold text-gray-800 mb-2">
-          Others {notes.length}
-        </h2>
+        <h2 className="text-sm font-semibold text-gray-800 mb-2">Others</h2>
       )}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
         {loading ? (
@@ -260,15 +288,32 @@ const NoteList = ({ data }: NoteProps) => {
           </div>
         ) : notes.length > 0 ? (
           notes.map((item, index) => (
-            <div key={index}>
+            <div
+              key={index}
+              className="relative group"
+              onMouseEnter={() => setHoveredNoteId(item._id as string)}
+              onMouseLeave={() => setHoveredNoteId(null)}
+            >
               {/* Note item */}
               {!item.isPinned && (
-                <div className="group min-h-34 h-fit p-5 border border-gray-300 hover:shadow-md rounded-sm transition-colors duration-200">
+                <div
+                  className={`min-h-34 h-fit p-5 ${
+                    selectedIds.includes(item._id as string)
+                      ? "border border-black rounded-sm"
+                      : "border-gray-300"
+                  } border  hover:shadow-md rounded-sm transition-colors transition-border duration-300`}
+                >
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold text-gray-800 truncate pr-2">
                       {item.title || "Untitled Note"}
                     </h3>
-                    <div className="opacity-0 group-hover:opacity-100">
+                    <div
+                      className={`${
+                        shouldShowHoverEffects(item._id as string)
+                          ? "opacity-100"
+                          : "opacity-0"
+                      } transition-opacity`}
+                    >
                       <TooltipButton
                         icon={
                           <PushpinOutlined className="cursor-pointer text-gray-500 hover:text-gray-700" />
@@ -277,6 +322,32 @@ const NoteList = ({ data }: NoteProps) => {
                         tooltipText="Pin Note"
                       />
                     </div>
+                  </div>
+
+                  {/* Select icon  */}
+                  <div
+                    className={`absolute ${
+                      !selectedIds.includes(item._id as string) &&
+                      !shouldShowHoverEffects(item._id as string) &&
+                      "opacity-0"
+                    } ${
+                      shouldShowHoverEffects(item._id as string)
+                        ? "opacity-100"
+                        : ""
+                    } left-[-1.2rem] top-[-0.8rem] transition-opacity`}
+                    onClick={() => {
+                      setSelectedIds((prev) =>
+                        prev.includes(item._id as string)
+                          ? prev.filter((id) => id !== (item._id as string))
+                          : [...prev, item._id as string]
+                      );
+                    }}
+                  >
+                    <TooltipButton
+                      idx={1}
+                      icon={<CheckCircleFilled className="text-xl" />}
+                      tooltipText="Select note"
+                    />
                   </div>
 
                   <p className="text-gray-600 mt-3 text-sm leading-relaxed">
@@ -290,9 +361,16 @@ const NoteList = ({ data }: NoteProps) => {
 
                   {/* Bottom icons */}
                   <NoteOptions
+                    noteId={item._id as string}
                     setIsMoreClicked={setIsMoreClicked}
                     isMoreClicked={isMoreClicked}
-                    moreOperationsItems={menuitems(item as INote)} // Fixed - now passes array
+                    moreOperationsItems={menuitems(item as INote)}
+                    shouldShowHoverEffects={shouldShowHoverEffects(
+                      item._id as string
+                    )}
+                    onDropdownOpenChange={(isOpen) =>
+                      handleDropdownOpenChange(item._id as string, isOpen)
+                    }
                   />
                 </div>
               )}
