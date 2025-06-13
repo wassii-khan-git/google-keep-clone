@@ -1,4 +1,4 @@
-// NoteOptions.tsx - Fixed component
+// NoteOptions.tsx - Updated component
 import { Button } from "@/components/ui/button";
 import CustomDropdown, {
   MoreOperationsItem,
@@ -16,15 +16,21 @@ import React from "react";
 import { toast } from "sonner";
 
 interface NoteOptionsProps {
+  noteId: string;
   setIsMoreClicked: (value: boolean) => void;
   isMoreClicked: boolean;
-  moreOperationsItems: MoreOperationsItem[]; // Fixed type - should be array
+  moreOperationsItems: MoreOperationsItem[];
+  shouldShowHoverEffects: boolean;
+  onDropdownOpenChange: (isOpen: boolean) => void;
 }
 
 const NoteOptions = ({
+  noteId,
   setIsMoreClicked,
   isMoreClicked,
   moreOperationsItems,
+  shouldShowHoverEffects,
+  onDropdownOpenChange,
 }: NoteOptionsProps) => {
   // note options menu items
   const bottomOptions = [
@@ -34,13 +40,6 @@ const NoteOptions = ({
       isClickable: false,
       isDropDown: true,
       childs: moreOperationsItems,
-    },
-    {
-      title: "Archive Note",
-      icon: <FolderAddOutlined />,
-      isClickable: true,
-      isDropDown: false,
-      childs: [],
     },
     {
       title: "Add Image",
@@ -73,19 +72,26 @@ const NoteOptions = ({
   ];
 
   return (
-    <div className="flex items-center justify-end mt-5 gap-1 opacity-0 group-hover:opacity-100">
+    <div
+      className={`flex items-center justify-center gap-0 mt-5 md:gap-1 ${
+        shouldShowHoverEffects ? "opacity-100" : "opacity-0"
+      } transition-opacity`}
+    >
       {bottomOptions.reverse().map((item, index) => (
         <React.Fragment key={index}>
           {item.isDropDown ? (
-            <CustomDropdown menuitems={item.childs} direction="start">
+            <CustomDropdown
+              menuitems={item.childs}
+              direction="start"
+              onOpenChange={onDropdownOpenChange}
+            >
               <Button
                 variant="outline"
                 size="sm"
                 className="h-8 w-8 p-0 rounded-full"
                 onClick={() => setIsMoreClicked(!isMoreClicked)}
               >
-                <MoreOutlined className="text-gray-500" />
-                <span className="sr-only">Open menu</span>
+                {item.icon}
               </Button>
             </CustomDropdown>
           ) : (
