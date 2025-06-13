@@ -29,9 +29,7 @@ export default async function RootLayout({
       <body className={`${openSans.variable} antialiased`}>
         {!session && redirect("/")}
         <AuthProvider>
-          {/* Navbar */}
-          <Navbar />
-          <div className="max-w-7xl mx-auto">{children}</div>
+          {children}
           {/* Toast container */}
           <Toaster richColors position="bottom-left" />
         </AuthProvider>
