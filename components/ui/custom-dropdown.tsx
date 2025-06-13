@@ -1,18 +1,3 @@
-// types.ts - Create a shared types file
-export interface MoreOperationsItem {
-  title: string;
-  icon: React.ReactNode;
-  isClickable: boolean;
-  handleClick: () => void;
-}
-
-export interface DropdownMenuItem {
-  title: string;
-  icon?: React.ReactNode;
-  isClickable?: boolean;
-  handleClick?: () => void;
-}
-
 // CustomDropdown.tsx - Updated component
 import {
   DropdownMenu,
@@ -25,16 +10,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import React from "react";
 
+export interface MoreOperationsItem {
+  title: string;
+  icon: React.ReactNode;
+  isClickable: boolean;
+  handleClick: () => void;
+}
+
 interface CustomDropdownProps {
   title?: string;
-  menuitems: {
-    title: string;
-    icon?: React.ReactNode;
-    isClickable?: boolean;
-    handleClick?: () => void;
-  }[];
+  menuitems: MoreOperationsItem[];
   children?: React.ReactNode;
   direction: "center" | "start" | "end";
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 const CustomDropdown = ({
@@ -42,9 +30,10 @@ const CustomDropdown = ({
   menuitems,
   children,
   direction,
+  onOpenChange,
 }: CustomDropdownProps) => {
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu modal={false} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align={direction}>
         {title && (
