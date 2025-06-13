@@ -6,7 +6,6 @@ import CustomDropdown, {
 import TooltipButton from "@/components/ui/custom-tooltip";
 import {
   BgColorsOutlined,
-  FolderAddOutlined,
   MoreOutlined,
   NotificationOutlined,
   PictureOutlined,
@@ -16,7 +15,6 @@ import React from "react";
 import { toast } from "sonner";
 
 interface NoteOptionsProps {
-  noteId: string;
   setIsMoreClicked: (value: boolean) => void;
   isMoreClicked: boolean;
   moreOperationsItems: MoreOperationsItem[];
@@ -25,7 +23,6 @@ interface NoteOptionsProps {
 }
 
 const NoteOptions = ({
-  noteId,
   setIsMoreClicked,
   isMoreClicked,
   moreOperationsItems,
