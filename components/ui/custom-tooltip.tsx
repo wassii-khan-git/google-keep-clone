@@ -23,7 +23,9 @@ const TooltipButton = ({
       onMouseLeave={() => setIsHovered(false)}
     >
       <label
-        className="hover:bg-gray-100 text-gray-500 px-3 py-2.5 rounded-full cursor-pointer"
+        className={` ${
+          idx !== 1 ? "hover:bg-gray-100 p-0" : ""
+        }  text-gray-500 px-3 py-2.5 rounded-full cursor-pointer`}
         onClick={onClick}
       >
         {icon}
