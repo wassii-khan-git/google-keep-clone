@@ -10,7 +10,9 @@ import Image from "next/image";
 import React from "react";
 import { useSession } from "next-auth/react";
 import { handleSignOut } from "@/lib/actions/auth.action";
-import CustomDropdown from "@/components/ui/custom-dropdown";
+import CustomDropdown, {
+  MoreOperationsItem,
+} from "@/components/ui/custom-dropdown";
 import TooltipButton from "@/components/ui/custom-tooltip";
 import { toast } from "sonner";
 
@@ -20,16 +22,18 @@ const Navbar = () => {
   console.log(session);
 
   // Define menu items for the dropdown
-  const menuItems = [
+  const menuItems: MoreOperationsItem[] = [
     {
       title: "Profile",
       icon: <ProfileOutlined className="mr-2 h-4 w-4" />,
       isClickable: false,
+      handleClick: () => {},
     },
     {
       title: "Settings",
       icon: <SettingOutlined className="mr-2 h-4 w-4" />,
       isClickable: false,
+      handleClick: () => {},
     },
     {
       title: "Log out",
