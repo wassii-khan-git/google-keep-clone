@@ -43,8 +43,6 @@ const NoteList = ({ data }: NoteProps) => {
   const session = useSession();
   // more options clicked
   const [isMoreClicked, setIsMoreClicked] = useState<boolean>(false);
-  // is note selected
-  const [isNoteSelected, setIsNoteSelected] = useState<boolean>(false);
   // selected id
   const [selectedIds, setSelectedIds] = useState<Array<string>>([]);
   // Add hover state for each note
@@ -225,8 +223,6 @@ const NoteList = ({ data }: NoteProps) => {
     },
   ];
 
-  console.log(isNoteSelected);
-
   return (
     <div className="mx-auto p-5">
       {/* pinned note item */}
@@ -361,7 +357,6 @@ const NoteList = ({ data }: NoteProps) => {
 
                   {/* Bottom icons */}
                   <NoteOptions
-                    noteId={item._id as string}
                     setIsMoreClicked={setIsMoreClicked}
                     isMoreClicked={isMoreClicked}
                     moreOperationsItems={menuitems(item as INote)}
