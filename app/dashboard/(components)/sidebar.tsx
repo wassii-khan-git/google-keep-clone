@@ -42,9 +42,9 @@ export default function Sidebar({ isMenuClicked }: SidebarProps) {
 
   return (
     <div
-      className={`h-[93vh] mt-2 ${
-        !isMenuClicked && "md:w-72"
-      } transition-all ease-in-out duration-300`}
+      className={` h-[93vh] mt-2 ${!isMenuClicked && "md:w-72"} ${
+        isMenuClicked ? "block" : "hidden"
+      } md:block transition-width ease-in-out duration-300`}
     >
       {sidebarItems.map((item, index) => (
         <Link
