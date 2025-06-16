@@ -16,8 +16,8 @@ import CustomDropdown, {
 import TooltipButton from "@/components/ui/custom-tooltip";
 
 interface NavbarProps {
-  setIsMenuClicked: Dispatch<SetStateAction<boolean>>;
-  isMenuClicked: boolean;
+  setIsMenuClicked?: Dispatch<SetStateAction<boolean>>;
+  isMenuClicked?: boolean;
 }
 
 const Navbar = ({ setIsMenuClicked, isMenuClicked }: NavbarProps) => {
@@ -48,30 +48,20 @@ const Navbar = ({ setIsMenuClicked, isMenuClicked }: NavbarProps) => {
 
   const handleMenuToggle = () => {
     // localStorage.setItem("menuToggle", JSON.stringify({ isMenuClicked: true }));
-    setIsMenuClicked(!isMenuClicked);
+    // setIsMenuClicked(!isMenuClicked);
   };
 
   return (
-    <div className="px-2 sm:px-4 py-2 flex items-center shadow-md">
+    <div className="sticky top-0 left-0 right-0 overflow-y-hidden p-2 flex justify-between items-center border-b border-gray-200 w-full">
       {/* Hamburger Menu */}
-      <TooltipButton
+      {/* <TooltipButton
         icon={<MenuOutlined />}
         tooltipText="Main menu"
         onClick={handleMenuToggle}
-      />
-
-      {/* Logo */}
-      <div className="ml-2 sm:ml-4 flex items-center flex-shrink-0">
-        <span className="text-lg sm:text-xl font-medium text-gray-800 hidden sm:inline">
-          Google
-        </span>
-        <span className="ml-1 text-lg sm:text-xl font-semibold text-yellow-500">
-          Keep
-        </span>
-      </div>
+      /> */}
 
       {/* Search Bar */}
-      <div className="flex-1 mx-2 sm:mx-4 md:mx-23 min-w-0">
+      <div className="w-[40%] mx-auto">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <SearchOutlined />
