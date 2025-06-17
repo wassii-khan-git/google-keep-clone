@@ -277,7 +277,7 @@ const NoteList = ({ data }: NoteProps) => {
       {pinnedNotes.length > 0 && notes.length > 0 && (
         <h2 className="text-sm font-semibold text-gray-800 mb-2">Others</h2>
       )}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5">
         {loading ? (
           <div className="flex items-center justify-center col-span-4">
             <LoadingOutlined className="text-3xl text-yellow-500" />
