@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/provider";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import Navbar from "./(components)/navbar";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
