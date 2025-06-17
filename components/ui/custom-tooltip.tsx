@@ -33,7 +33,7 @@ const TooltipButton = ({
       <div
         className={`absolute left-1/2 -translate-x-1/2 mt-5 w-max px-2 py-1 bg-gray-800 text-white text-xs rounded ${
           isHovered ? "opacity-100" : "opacity-0"
-        } transition-opacity pointer-events-none z-10`}
+        } transition-opacity pointer-events-none z-50`}
       >
         {tooltipText}
       </div>

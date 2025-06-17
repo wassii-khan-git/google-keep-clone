@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 import { useState, useEffect } from "react";
 import Note from "./(components)/note";
@@ -70,4 +71,10 @@ export default function Home() {
       </div>
     </div>
   );
+=======
+import Note from "./(components)/note";
+
+export default function Page() {
+  return <Note />;
+>>>>>>> 922e01023e3105190ecd5560fae9140941e9f597
 }
