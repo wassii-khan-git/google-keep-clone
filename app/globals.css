@@ -125,3 +125,7 @@
 .note:hover .options {
   display: flex;
 }
+
+/* .touch-action-none {
+  touch-action: none;
+} */
