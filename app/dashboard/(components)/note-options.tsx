@@ -1,4 +1,3 @@
-// NoteOptions.tsx - Updated component
 import { Button } from "@/components/ui/button";
 import CustomDropdown, {
   MoreOperationsItem,
@@ -11,11 +10,11 @@ import {
   PictureOutlined,
   UsergroupAddOutlined,
 } from "@ant-design/icons";
-import React from "react";
+import React, { SetStateAction, useCallback } from "react";
 import { toast } from "sonner";
 
 interface NoteOptionsProps {
-  setIsMoreClicked: (value: boolean) => void;
+  setIsMoreClicked: React.Dispatch<SetStateAction<boolean>>;
   isMoreClicked: boolean;
   moreOperationsItems: MoreOperationsItem[];
   shouldShowHoverEffects: boolean;
@@ -68,32 +67,38 @@ const NoteOptions = ({
     },
   ];
 
+  const renderDropDownComponent = useCallback(
+    (item: (typeof bottomOptions)[number]) => (
+      <CustomDropdown
+        menuitems={item.childs}
+        direction="start"
+        onOpenChange={onDropdownOpenChange}
+      >
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 w-8 p-0 rounded-full"
+          onClick={() => setIsMoreClicked(!isMoreClicked)}
+        >
+          {item.icon}
+        </Button>
+      </CustomDropdown>
+    ),
+    [isMoreClicked, onDropdownOpenChange, setIsMoreClicked]
+  );
+
   return (
     <div
       className={`flex items-center justify-center gap-0 mt-5 md:gap-1 ${
         shouldShowHoverEffects ? "opacity-100" : "opacity-0"
       } transition-opacity`}
     >
-      {bottomOptions.reverse().map((item, index) => (
+      {[...bottomOptions].reverse().map((item, index) => (
         <React.Fragment key={index}>
           {item.isDropDown ? (
-            <CustomDropdown
-              menuitems={item.childs}
-              direction="start"
-              onOpenChange={onDropdownOpenChange}
-            >
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 w-8 p-0 rounded-full"
-                onClick={() => setIsMoreClicked(!isMoreClicked)}
-              >
-                {item.icon}
-              </Button>
-            </CustomDropdown>
+            renderDropDownComponent(item)
           ) : (
             <TooltipButton
-              key={index}
               icon={item.icon}
               onClick={() =>
                 toast.error(`${item.title} feature is not implemented yet`)
