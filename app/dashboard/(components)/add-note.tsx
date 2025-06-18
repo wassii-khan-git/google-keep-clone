@@ -1,11 +1,12 @@
 "use client";
 
-import { CloseOutlined } from "@ant-design/icons";
+import { BellFilled, BellOutlined, CloseOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { CreateNote } from "@/lib/actions/notes.actions";
+import { CreateNote, PinnedNote } from "@/lib/actions/notes.actions";
 import { INote } from "@/models/tasks.model";
 import { useSession } from "next-auth/react";
 import TooltipButton from "@/components/ui/custom-tooltip";
+import { toast } from "sonner";
 
 interface CreateNoteResponse {
   success?: boolean;
@@ -28,6 +29,9 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
   // session
   const session = useSession();
 
+  // pinned
+  const [pinned, setIsPinned] = useState<boolean>(false);
+
   // Auto-resize textarea
   const adjustTextareaHeight = () => {
     if (textAreaRef.current) {
@@ -45,19 +49,30 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
       console.log("Note is empty");
       return;
     }
-    const response = await CreateNote({
+    const obj = {
       title,
       note,
       userId: session?.data?.user?.id as string,
-    });
-    console.log("Response from CreateNote:", response);
+      isPinned: pinned as boolean,
+    };
+    console.log("i am add note obj", obj);
 
-    if (response.success) {
-      ToggleHandler({ success: true, data: response.data as INote });
-      setTitle("");
-      setNote("");
+    try {
+      const response = await CreateNote(obj);
+      console.log("Response from CreateNote:", response);
+
+      if (response.success) {
+        ToggleHandler({ success: true, data: response.data as INote });
+        setTitle("");
+        setNote("");
+        setIsPinned(false);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
     }
-  }, [title, note, session, ToggleHandler]);
+  }, [title, note, session, ToggleHandler, pinned]);
 
   // clickaawy
   useEffect(() => {
@@ -88,13 +103,12 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
             setTitle(e.target.value);
           }}
         />
-        {/* close */}
-
+        {/* bell outline */}
         <TooltipButton
-          idx={1}
-          icon={<CloseOutlined />}
-          onClick={() => ToggleHandler({ success: false })}
-          tooltipText="Close Note"
+          icon={!pinned ? <BellOutlined /> : <BellFilled />}
+          // onClick={() => ToggleHandler({ success: false })}
+          onClick={() => setIsPinned(true)}
+          tooltipText="pinunpinNote"
         />
       </div>
       {/* details */}
