@@ -37,18 +37,22 @@ const CustomDropdown = ({
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align={direction}>
         {title && (
-          <>
+          <React.Fragment>
             <DropdownMenuLabel>{title}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-          </>
+          </React.Fragment>
         )}
         <DropdownMenuGroup>
           {menuitems.map((item, index) => (
             <React.Fragment key={index}>
               <DropdownMenuItem
-                onClick={() => item.isClickable && item.handleClick?.()}
+                onClick={() => {
+                  if (item?.isClickable) {
+                    item?.handleClick?.();
+                  }
+                }}
                 className={`${
-                  item.isClickable ? "cursor-pointer" : "cursor-not-allowed"
+                  item?.isClickable ? "cursor-pointer" : "cursor-not-allowed"
                 }`}
               >
                 {item.icon}
