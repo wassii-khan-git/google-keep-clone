@@ -9,6 +9,8 @@ export interface CreateNotePayload {
   title?: string | null;
   note: string;
   userId: string;
+  isPinned?: boolean;
+  isArchived?: boolean;
 }
 // Delete Note Payload interface
 export interface DeleteNotePayload {
@@ -48,6 +50,7 @@ export const CreateNote = async (
     const newNote = new NotesModel({
       ...validation.data,
       userId: payload.userId.toString(),
+      isPinned: payload.isPinned ? payload.isPinned : false,
     });
     // save the note to the database
     const savedNote = await newNote.save();
