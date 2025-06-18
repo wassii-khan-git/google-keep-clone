@@ -36,7 +36,7 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
   const handleMenuClick = useCallback(() => {
     localStorage.setItem("menu", JSON.stringify({ active: true }));
     setIsMenuClicked((prev) => !prev);
-  }, []);
+  }, [setIsMenuClicked]);
 
   const handleRefreshClick = useCallback(() => {
     toast.error("Working on this feature");
@@ -69,11 +69,11 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
 
   const handleSearchFocus = useCallback(() => {
     setIsSearchFocused(true);
-  }, []);
+  }, [setIsSearchFocused]);
 
   const handleSearchBlur = useCallback(() => {
     setIsSearchFocused(false);
-  }, []);
+  }, [setIsSearchFocused]);
 
   // Define menu items for the dropdown
   const menuItems: MoreOperationsItem[] = [
