@@ -1,10 +1,12 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Note from "./(components)/note";
 import Navbar from "./(components)/common/navbar";
 import Sidebar from "./(components)/common/sidebar";
 
 export default function Home() {
+  // menu item
   const [isMenuClicked, setIsMenuClicked] = useState<boolean>(false);
 
   // Detect screen size changes
