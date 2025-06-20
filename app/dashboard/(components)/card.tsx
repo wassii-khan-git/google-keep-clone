@@ -3,11 +3,12 @@
 import React, { Dispatch, SetStateAction } from "react";
 import TooltipButton from "@/components/ui/custom-tooltip";
 import { INote } from "@/models/tasks.model";
-import { CheckCircleFilled, PushpinOutlined } from "@ant-design/icons";
+import { CheckCircleFilled } from "@ant-design/icons";
 import type { Transform, Transition } from "@dnd-kit/utilities"; // Only need Transform here
 import NoteOptions from "./note-options";
-import { MoreOperationsItem } from "@/components/ui/custom-dropdown";
 import { CSS } from "@dnd-kit/utilities"; // Import CSS for transform conversion
+import { PinIcon, PinOff } from "lucide-react";
+import { MenuItemsProps } from "@/components/ui/custom-dropdown";
 
 interface NoteCardProps {
   selectedIds: string[];
@@ -16,18 +17,18 @@ interface NoteCardProps {
   setSelectedIds: Dispatch<SetStateAction<string[]>>;
   setIsMoreClicked: Dispatch<SetStateAction<boolean>>;
   isMoreClicked: boolean;
-  menuitems: (item: INote) => MoreOperationsItem[];
+  menuitems: (item: INote) => MenuItemsProps[];
   handleDropdownOpenChange: (id: string, isOpen: boolean) => Set<string>;
   pinUnpinNote: (note: INote, isPinned: boolean) => void;
   onMouseEnter: (noteId: string) => void;
   onMouseLeave: (noteId: string) => void;
-
   // Dnd-kit specific props
   transform?: Transform | null;
   transition?: Transition | undefined;
   attributes?: React.HTMLAttributes<HTMLDivElement>;
   listeners?: React.HTMLAttributes<HTMLDivElement>;
   isDragging?: boolean; // Indicates if this specific card is being dragged
+  content?: string;
 }
 
 const NoteCard = React.memo(
@@ -39,7 +40,6 @@ const NoteCard = React.memo(
         shouldShowHoverEffects,
         setSelectedIds,
         setIsMoreClicked,
-        isMoreClicked,
         pinUnpinNote,
         handleDropdownOpenChange,
         menuitems,
@@ -50,6 +50,7 @@ const NoteCard = React.memo(
         attributes,
         listeners,
         isDragging, // Use this prop for drag-specific styling
+        content,
       },
       ref
     ) => {
@@ -76,7 +77,7 @@ const NoteCard = React.memo(
           onMouseEnter={() => onMouseEnter(item._id as string)}
           onMouseLeave={() => onMouseLeave(item._id as string)}
           className={`
-            min-h-34 h-fit p-5 border rounded-sm relative
+             h-fit border rounded-sm relative
             ${
               isSelected
                 ? "border-black"
@@ -86,67 +87,80 @@ const NoteCard = React.memo(
             ${isDragging ? "cursor-grabbing" : "cursor-grab"}
           `}
         >
-          {/* Top section: Title and Pin Icon */}
-          <div className="flex justify-between items-center relative">
-            <h3 className="font-semibold text-gray-800 truncate pr-2">
-              {item.title || "Untitled Note"}
-            </h3>
+          <div className="px-4 py-1.5">
+            {/* Top section: Title and Pin Icon */}
+            <div className="flex justify-between items-center relative">
+              <h3 className="font-semibold text-gray-800 truncate pr-2">
+                {item.title || "Untitled Note"}
+              </h3>
+              <div
+                className={`${
+                  showHover ? "opacity-100" : "opacity-0"
+                } transition-opacity duration-200`}
+              >
+                <TooltipButton
+                  icon={
+                    content === "notes" ? (
+                      <PinIcon size={18} />
+                    ) : (
+                      <PinOff size={18} />
+                    )
+                  }
+                  handleClick={() =>
+                    pinUnpinNote(
+                      item as INote,
+                      content === "notes" ? true : false
+                    )
+                  }
+                  tooltipText={content === "notes" ? "pin note" : "unpin note"}
+                  isClickable={true}
+                />
+              </div>
+            </div>
+
+            {/* Select icon - positioned absolutely */}
             <div
-              className={`${
-                showHover ? "opacity-100" : "opacity-0"
-              } transition-opacity duration-200`}
+              className={`absolute z-10
+              ${showHover || isSelected ? "opacity-100" : "opacity-0"}
+              left-[-1.2rem] top-[-1.2rem] transition-opacity duration-200 cursor-pointer
+            `}
+              onClick={() => {
+                setSelectedIds((prev: string[]) =>
+                  prev.includes(item._id as string)
+                    ? prev.filter((id: string) => id !== item._id)
+                    : [...prev, item._id as string]
+                );
+              }}
             >
               <TooltipButton
-                icon={
-                  <PushpinOutlined className="cursor-pointer text-gray-500 hover:text-gray-700" />
-                }
-                onClick={() => pinUnpinNote(item as INote, true)}
-                tooltipText="Pin Note"
+                idx={1}
+                icon={<CheckCircleFilled className="text-xl" />}
+                tooltipText="Select note"
+                isClickable={true}
               />
             </div>
-          </div>
 
-          {/* Select icon - positioned absolutely */}
-          <div
-            className={`absolute z-10
-              ${showHover || isSelected ? "opacity-100" : "opacity-0"}
-              left-[-1.2rem] top-[-0.8rem] transition-opacity duration-200 cursor-pointer
-            `}
-            onClick={() => {
-              setSelectedIds((prev: string[]) =>
-                prev.includes(item._id as string)
-                  ? prev.filter((id: string) => id !== item._id)
-                  : [...prev, item._id as string]
-              );
-            }}
-          >
-            <TooltipButton
-              idx={1}
-              icon={<CheckCircleFilled className="text-xl" />}
-              tooltipText="Select note"
+            {/* Note content */}
+            <p className="text-gray-600 text-sm leading-relaxed">
+              {item.note.split("\n").map((line: string, idx: number) => (
+                <span key={idx}>
+                  {line}
+                  <br />
+                </span>
+              ))}
+            </p>
+          </div>
+          {/* Bottom icons (More options) */}
+          <div className="mb-1.5">
+            <NoteOptions
+              setIsMoreClicked={setIsMoreClicked}
+              menuItemsProps={menuitems(item as INote)}
+              shouldShowHoverEffects={showHover}
+              onDropdownOpenChange={(isOpen) =>
+                handleDropdownOpenChange(item._id as string, isOpen)
+              }
             />
           </div>
-
-          {/* Note content */}
-          <p className="text-gray-600 mt-3 text-sm leading-relaxed">
-            {item.note.split("\n").map((line: string, idx: number) => (
-              <span key={idx}>
-                {line}
-                <br />
-              </span>
-            ))}
-          </p>
-
-          {/* Bottom icons (More options) */}
-          <NoteOptions
-            setIsMoreClicked={setIsMoreClicked}
-            isMoreClicked={isMoreClicked}
-            moreOperationsItems={menuitems(item as INote)}
-            shouldShowHoverEffects={showHover}
-            onDropdownOpenChange={(isOpen) =>
-              handleDropdownOpenChange(item._id as string, isOpen)
-            }
-          />
         </div>
       );
     }
