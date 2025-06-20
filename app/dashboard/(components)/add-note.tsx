@@ -1,12 +1,29 @@
 "use client";
 
-import { BellFilled, BellOutlined, CloseOutlined } from "@ant-design/icons";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { CreateNote, PinnedNote } from "@/lib/actions/notes.actions";
+import { CreateNote } from "@/lib/actions/notes.actions";
 import { INote } from "@/models/tasks.model";
 import { useSession } from "next-auth/react";
 import TooltipButton from "@/components/ui/custom-tooltip";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  Type,
+  Pin,
+  PinOff,
+  Bold,
+  Italic,
+  Palette,
+  BellPlus,
+  ImageIcon,
+  FolderDown,
+  FolderUp,
+  Heading1,
+  Heading2,
+  UserPlus,
+  CornerDownLeft,
+  CornerDownRight,
+} from "lucide-react";
 
 interface CreateNoteResponse {
   success?: boolean;
@@ -28,9 +45,10 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   // session
   const session = useSession();
-
   // pinned
   const [pinned, setIsPinned] = useState<boolean>(false);
+  // is archived
+  const [isArchived, setIsArchived] = useState<boolean>(false);
 
   // Auto-resize textarea
   const adjustTextareaHeight = () => {
@@ -54,6 +72,7 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
       note,
       userId: session?.data?.user?.id as string,
       isPinned: pinned as boolean,
+      isArchived: isArchived as boolean,
     };
     console.log("i am add note obj", obj);
 
@@ -66,6 +85,7 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
         setTitle("");
         setNote("");
         setIsPinned(false);
+        setIsArchived(false);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -86,12 +106,89 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
     return () => document.removeEventListener("mousedown", clickAway);
   }, [noteRef, addNote]);
 
+  const bottomIcons = [
+    {
+      icon: <Type size={18} />,
+      text: "Formatting options",
+      isClickable: false,
+      handleClick: () => toast.error("text formating is clicked"),
+      child: [
+        {
+          icon: <Heading1 size={18} />,
+          text: "Heading 1",
+          isClickable: false,
+          handleClick: () => toast.error("H1"),
+        },
+        {
+          icon: <Heading2 size={18} />,
+          text: "Heading 2",
+          isClickable: false,
+          handleClick: () => toast.error("H2"),
+        },
+        {
+          icon: <Bold size={18} />,
+          text: "Bold",
+          isClickable: false,
+          handleClick: () => toast.error("Bold"),
+        },
+        {
+          icon: <Italic size={18} />,
+          text: "italic",
+          isClickable: false,
+          handleClick: () => toast.error("italic"),
+        },
+      ],
+    },
+    {
+      icon: <Palette size={18} />,
+      text: "Background Options",
+      isClickable: true,
+      handleClick: () => toast.error("background options"),
+    },
+    {
+      icon: <BellPlus size={18} />,
+      text: "Remind me",
+      isClickable: true,
+      handleClick: () => toast.error("Remind me"),
+    },
+    {
+      icon: <UserPlus size={18} />,
+      text: "Add collaborator",
+      isClickable: true,
+      handleClick: () => toast.error("Add collaborator"),
+    },
+    {
+      icon: <ImageIcon size={18} />,
+      text: "Add Image",
+      isClickable: true,
+      handleClick: () => toast.error("Add Image"),
+    },
+    {
+      icon: !isArchived ? <FolderDown size={18} /> : <FolderUp size={18} />,
+      text: "archive",
+      isClickable: true,
+      handleClick: () => setIsArchived((prev) => !prev),
+    },
+    {
+      icon: <CornerDownLeft size={18} />,
+      text: "Undo",
+      isClickable: false,
+      handleClick: () => toast.error("Undo"),
+    },
+    {
+      icon: <CornerDownRight size={18} />,
+      text: "Redo",
+      isClickable: false,
+      handleClick: () => toast.error("Redo"),
+    },
+  ];
+
   return (
     <div
       ref={noteRef}
-      className={`hover:border-gray-500 p-3 w-full md:w-[30rem] mx-auto border rounded-sm shadow `}
+      className={`hover:border-gray-500 p-2 w-full md:w-[600px] mx-auto border rounded-sm shadow `}
     >
-      <div className="flex justify-between mt-2 mb-2">
+      <div className="flex justify-between mb-2">
         {/* title */}
         <input
           autoFocus={true}
@@ -105,10 +202,10 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
         />
         {/* bell outline */}
         <TooltipButton
-          icon={!pinned ? <BellOutlined /> : <BellFilled />}
-          // onClick={() => ToggleHandler({ success: false })}
-          onClick={() => setIsPinned(true)}
+          icon={!pinned ? <Pin size={18} /> : <PinOff size={18} />}
+          handleClick={() => setIsPinned((prev) => !prev)}
           tooltipText="pinunpinNote"
+          isClickable={true}
         />
       </div>
       {/* details */}
@@ -123,6 +220,28 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
           adjustTextareaHeight();
         }}
       />
+      {/* note options */}
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          {bottomIcons.map((item, index) => (
+            <TooltipButton
+              key={index}
+              icon={item.icon}
+              tooltipText={item.text}
+              handleClick={() => item?.handleClick()}
+              isClickable={item.isClickable}
+            />
+          ))}
+        </div>
+        {/* close */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => ToggleHandler({ success: false })}
+        >
+          Close
+        </Button>
+      </div>
     </div>
   );
 };
