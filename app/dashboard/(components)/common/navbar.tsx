@@ -113,6 +113,7 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
               />
             }
             tooltipText="Main Menu"
+            isClickable={true}
           />
 
           {/* Logo */}
@@ -182,6 +183,7 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
               }
               tooltipText="Refresh"
               onClick={handleRefreshClick}
+              isClickable={true}
             />
             <TooltipButton
               icon={
@@ -189,6 +191,7 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
               }
               tooltipText="List View"
               onClick={handleListViewClick}
+              isClickable={false}
             />
             <TooltipButton
               icon={
@@ -196,6 +199,7 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
               }
               tooltipText="Settings"
               onClick={handleSettingsClick}
+              isClickable={false}
             />
           </div>
 
