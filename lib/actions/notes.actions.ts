@@ -51,6 +51,7 @@ export const CreateNote = async (
       ...validation.data,
       userId: payload.userId.toString(),
       isPinned: payload.isPinned ? payload.isPinned : false,
+      isArchived: payload.isArchived ? payload.isArchived : false,
     });
     // save the note to the database
     const savedNote = await newNote.save();

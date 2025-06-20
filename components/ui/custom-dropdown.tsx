@@ -10,16 +10,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import React from "react";
 
-export interface MoreOperationsItem {
+export interface MenuChildsProps {
   title: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   isClickable: boolean;
   handleClick: () => void;
 }
 
+export interface MenuItemsProps {
+  title: string;
+  icon?: React.ReactNode;
+  isClickable: boolean;
+  handleClick: () => void;
+  childs: MenuChildsProps[];
+}
+
 interface CustomDropdownProps {
   title?: string;
-  menuitems: MoreOperationsItem[];
+  menuitems: MenuChildsProps[];
   children?: React.ReactNode;
   direction: "center" | "start" | "end";
   onOpenChange?: (isOpen: boolean) => void;

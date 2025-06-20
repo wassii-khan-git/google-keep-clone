@@ -1,11 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  CheckCircleFilled,
-  LoadingOutlined,
-  PushpinFilled,
-} from "@ant-design/icons";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ArchiveNote,
   DeleteNote,
@@ -14,13 +9,10 @@ import {
 } from "@/lib/actions/notes.actions";
 import { INote } from "@/models/tasks.model";
 import { notify } from "@/lib/utils";
-import { Trash2, Copy, Archive } from "lucide-react";
 import EmptyNotes from "./empty-note";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { MoreOperationsItem } from "@/components/ui/custom-dropdown";
-import TooltipButton from "@/components/ui/custom-tooltip";
-import NoteOptions from "./note-options";
+
 import {
   closestCenter,
   DndContext,
@@ -39,6 +31,16 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import SortableNoteCard from "./sortable-note-card";
+import { LoadingOutlined } from "@ant-design/icons";
+import {
+  BellPlus,
+  EllipsisVertical,
+  FolderDown,
+  ImageIcon,
+  Palette,
+  UserPlus,
+} from "lucide-react";
+import { MenuItemsProps } from "@/components/ui/custom-dropdown";
 
 interface NoteProps {
   data: INote;
@@ -48,12 +50,13 @@ const NoteList = ({ data }: NoteProps) => {
   const [notes, setNotes] = useState<INote[]>([]);
   const [pinnedNotes, setPinnedNotes] = useState<INote[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const session = useSession();
-  const [isMoreClicked, setIsMoreClicked] = useState<boolean>(false); // Consider if this is truly needed at global level or can be local to NoteCard
+  const [isMoreClicked, setIsMoreClicked] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<Array<string>>([]);
   const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
   const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set());
+  const session = useSession();
 
+  // fetch notes
   const fetchNotes = async (id: string) => {
     setLoading(true);
     try {
@@ -66,7 +69,9 @@ const NoteList = ({ data }: NoteProps) => {
         setNotes(
           notesData.filter((note) => !note.isArchived && !note.isPinned)
         );
-        setPinnedNotes(notesData.filter((note) => note.isPinned));
+        setPinnedNotes(
+          notesData.filter((note) => note.isPinned && !note.isArchived)
+        );
       }
     } catch (error) {
       console.error("Failed to fetch notes:", error); // Use console.error for errors
@@ -75,7 +80,8 @@ const NoteList = ({ data }: NoteProps) => {
     }
   };
 
-  const deleteNote = async (id: string) => {
+  // delete note
+  const deleteNote = React.useCallback(async (id: string) => {
     try {
       const response = await DeleteNote({ id });
       if (response.success) {
@@ -96,9 +102,10 @@ const NoteList = ({ data }: NoteProps) => {
         flag: false,
       });
     }
-  };
+  }, []);
 
-  const copyNote = async (note: INote) => {
+  // copy note
+  const copyNote = React.useCallback(async (note: INote) => {
     try {
       const textToCopy = `${note.title ? note.title + "\n\n" : ""}${note.note}`;
       await navigator.clipboard.writeText(textToCopy);
@@ -113,33 +120,38 @@ const NoteList = ({ data }: NoteProps) => {
         flag: false,
       });
     }
-  };
+  }, []);
 
-  const archiveNote = async (note: INote) => {
-    try {
-      const response = await ArchiveNote({
-        noteId: note._id as string,
-        userId: session?.data?.user.id as string,
-      });
-      if (response.success) {
-        toast.success(response.message || "Note is archived");
-        // Optimistic update: remove from current lists
-        setNotes((prevNotes) =>
-          prevNotes.filter((item) => item._id !== note._id)
-        );
-        setPinnedNotes((prevPinned) =>
-          prevPinned.filter((item) => item._id !== note._id)
-        );
-      } else {
-        toast.error(response.message);
+  // archive note
+  const archiveNote = React.useCallback(
+    async (note: INote) => {
+      try {
+        const response = await ArchiveNote({
+          noteId: note._id as string,
+          userId: session?.data?.user.id as string,
+        });
+        if (response.success) {
+          toast.success(response.message || "Note is archived");
+          // Optimistic update: remove from current lists
+          setNotes((prevNotes) =>
+            prevNotes.filter((item) => item._id !== note._id)
+          );
+          setPinnedNotes((prevPinned) =>
+            prevPinned.filter((item) => item._id !== note._id)
+          );
+        } else {
+          toast.error(response.message);
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        }
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      }
-    }
-  };
+    },
+    [session?.data?.user.id, setNotes, setPinnedNotes]
+  );
 
+  // pinunpin note
   const pinUnpinNote = async (note: INote, flag: boolean) => {
     try {
       const response = await PinnedNote({
@@ -173,6 +185,7 @@ const NoteList = ({ data }: NoteProps) => {
     }
   };
 
+  // handle dropdown change
   const handleDropdownOpenChange = (
     noteId: string,
     isOpen: boolean
@@ -189,6 +202,7 @@ const NoteList = ({ data }: NoteProps) => {
     return openDropdowns;
   };
 
+  // should hover effects
   const shouldShowHoverEffects = (noteId: string) => {
     return (
       (hoveredNoteId === noteId && openDropdowns.size === 0) ||
@@ -228,28 +242,66 @@ const NoteList = ({ data }: NoteProps) => {
     }
   }, [data]); // Depend on 'data' to add new notes
 
-  const menuitems = React.useCallback(
-    (item: INote): MoreOperationsItem[] => [
+  // menuItems
+  const menuitems = useCallback(
+    (item: INote): MenuItemsProps[] => [
       {
-        title: "Make a Copy",
-        icon: <Copy className="mr-2 h-4 w-4" />,
+        title: "More Options",
+        icon: <EllipsisVertical size={18} />,
         isClickable: true,
-        handleClick: () => copyNote(item),
+        handleClick: () => console.log("more options"),
+        childs: [
+          {
+            title: "Make a Copy",
+            // icon: <Copy className="mr-2 h-4 w-4" />,
+            isClickable: true,
+            handleClick: () => copyNote(item),
+          },
+          {
+            title: "Delete Note",
+            // icon: <Trash2 className="mr-2 h-4 w-4" />,
+            isClickable: true,
+            handleClick: () => deleteNote(item._id as string),
+          },
+        ],
       },
       {
-        title: "Archive",
-        icon: <Archive className="mr-2 h-4 w-4" />,
+        title: "Add archive",
+        icon: <FolderDown size={18} />,
         isClickable: true,
-        handleClick: () => archiveNote(item),
+        handleClick: () => archiveNote(item as INote),
+        childs: [],
       },
       {
-        title: "Delete Note",
-        icon: <Trash2 className="mr-2 h-4 w-4" />,
+        title: "Add Image",
+        icon: <ImageIcon size={18} />,
         isClickable: true,
-        handleClick: () => deleteNote(item._id as string),
+        handleClick: () => console.log("add image"),
+        childs: [],
+      },
+      {
+        title: "Add Collaborator",
+        icon: <UserPlus size={18} />,
+        isClickable: true,
+        handleClick: () => console.log("add image"),
+        childs: [],
+      },
+      {
+        title: "Add Reminder",
+        icon: <BellPlus size={18} />,
+        isClickable: true,
+        handleClick: () => console.log("add image"),
+        childs: [],
+      },
+      {
+        title: "Add Background",
+        icon: <Palette size={18} />,
+        isClickable: true,
+        handleClick: () => console.log("add image"),
+        childs: [],
       },
     ],
-    [copyNote, archiveNote, deleteNote]
+    [copyNote, deleteNote, archiveNote]
   ); // Dependencies for useCallback
 
   // on drag
@@ -295,91 +347,45 @@ const NoteList = ({ data }: NoteProps) => {
       >
         {/* Pinned Notes Section */}
         {pinnedNotes.length > 0 && (
-          <h2 className="text-sm font-semibold text-gray-800 mb-2">Pinned</h2>
+          <h2 className="text-sm font-semibold text-gray-800 mb-3">Pinned</h2>
         )}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-          {pinnedNotes.map((item) => (
-            <div
-              key={item._id as string}
-              onMouseEnter={() => handleNoteMouseEnter(item._id as string)}
-              onMouseLeave={() => handleNoteMouseLeave(item._id as string)}
-              className="md:w-[18rem] mb-16 note min-h-34 h-fit p-5 border border-gray-300 hover:border-gray-500 rounded-sm transition-colors duration-200 relative"
-            >
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-gray-800 truncate pr-2">
-                  {item.title || "Untitled Note"}
-                </h3>
-                {/* Pin icon (filled for pinned notes) with unpin functionality */}
-                <TooltipButton
-                  icon={
-                    <PushpinFilled className="text-xl cursor-pointer text-gray-500 hover:text-gray-700" />
-                  }
-                  onClick={() => pinUnpinNote(item as INote, false)}
-                  tooltipText="Unpin Note"
-                />
-              </div>
 
-              {/* Select icon (visibility based on hover/selection) */}
-              <div
-                className={`absolute z-10
-                  ${
-                    shouldShowHoverEffects(item._id as string) ||
-                    selectedIds.includes(item._id as string)
-                      ? "opacity-100"
-                      : "opacity-0"
-                  }
-                  left-[-1.2rem] top-[-0.8rem] transition-opacity duration-200 cursor-pointer
-                `}
-                onClick={() => {
-                  setSelectedIds((prev: string[]) =>
-                    prev.includes(item._id as string)
-                      ? prev.filter((id: string) => id !== item._id)
-                      : [...prev, item._id as string]
-                  );
-                }}
-              >
-                <TooltipButton
-                  icon={<CheckCircleFilled className="text-xl" />}
-                  tooltipText="Select note"
-                />
-              </div>
-
-              <p className="text-gray-600 mt-3 text-sm leading-relaxed">
-                {item.note.split("\n").map((line, idx) => (
-                  <span key={idx}>
-                    {line}
-                    <br />
-                  </span>
-                ))}
-              </p>
-
-              <NoteOptions
-                setIsMoreClicked={setIsMoreClicked} // Consider if this is still needed
-                isMoreClicked={isMoreClicked} // Consider if this is still needed
-                moreOperationsItems={menuitems(item)}
-                shouldShowHoverEffects={shouldShowHoverEffects(
-                  item._id as string
-                )}
-                onDropdownOpenChange={(isOpen) =>
-                  handleDropdownOpenChange(item._id as string, isOpen)
-                }
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
+          <SortableContext
+            items={pinnedNotes.map((note) => note._id as string)} // Pass only IDs to SortableContext
+            strategy={rectSortingStrategy}
+          >
+            {pinnedNotes.map((item) => (
+              <SortableNoteCard
+                content="pinned"
+                key={item._id as string} // Use _id for key
+                id={item._id as string} // Use _id as the dnd-kit id for stability
+                item={item}
+                selectedIds={selectedIds}
+                shouldShowHoverEffects={shouldShowHoverEffects}
+                setSelectedIds={setSelectedIds}
+                setIsMoreClicked={setIsMoreClicked}
+                isMoreClicked={isMoreClicked}
+                pinUnpinNote={pinUnpinNote}
+                handleDropdownOpenChange={handleDropdownOpenChange}
+                menuitems={menuitems}
+                onMouseEnter={handleNoteMouseEnter}
+                onMouseLeave={handleNoteMouseLeave}
               />
-            </div>
-          ))}
+            ))}
+          </SortableContext>
         </div>
-
         {/* Regular Notes Section */}
         {pinnedNotes.length > 0 && notes.length > 0 && (
           <h2 className="text-sm font-semibold text-gray-800 mt-8 mb-2">
             Others
           </h2>
         )}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
           {loading ? (
-            <div className="flex items-center justify-center col-span-full">
-              {" "}
+            <div className="flex items-center justify-start md:justify-center col-span-full">
               {/* Use col-span-full for full width loading */}
-              <LoadingOutlined className="text-3xl text-yellow-500" />
+              <LoadingOutlined />
             </div>
           ) : notes.length > 0 ? (
             <SortableContext
@@ -388,6 +394,7 @@ const NoteList = ({ data }: NoteProps) => {
             >
               {notes.map((item) => (
                 <SortableNoteCard
+                  content="notes"
                   key={item._id as string}
                   id={item._id as string} // Pass _id as the dnd-kit id
                   item={item}

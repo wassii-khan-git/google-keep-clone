@@ -1,4 +1,4 @@
-import { MoreOperationsItem } from "@/components/ui/custom-dropdown";
+import { MenuItemsProps } from "@/components/ui/custom-dropdown";
 import { INote } from "@/models/tasks.model";
 import { useSortable } from "@dnd-kit/sortable";
 import NoteCard from "./card";
@@ -12,16 +12,18 @@ interface SortableNoteCardProps {
   setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
   setIsMoreClicked: React.Dispatch<React.SetStateAction<boolean>>;
   isMoreClicked: boolean;
-  menuitems: (item: INote) => MoreOperationsItem[];
+  menuitems: (item: INote) => MenuItemsProps[];
   handleDropdownOpenChange: (id: string, isOpen: boolean) => Set<string>;
   pinUnpinNote: (note: INote, isPinned: boolean) => void;
   onMouseEnter: (noteId: string) => void;
   onMouseLeave: (noteId: string) => void;
+  content: "pinned" | "notes" | string;
 }
 
 export default function SortableNoteCard({
   id,
   item,
+  content,
   ...rest // Spread all other props
 }: SortableNoteCardProps) {
   const {
@@ -38,6 +40,7 @@ export default function SortableNoteCard({
     // on the draggable element, which is crucial for smooth mobile dragging.
     <div className="touch-action-none">
       <NoteCard
+        content={content}
         ref={setNodeRef} // Attach the ref for dnd-kit
         transform={transform} // Pass dnd-kit's transform
         transition={transition as unknown as Transition} // Pass dnd-kit's transition cast to Transition type

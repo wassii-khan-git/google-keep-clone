@@ -1,8 +1,7 @@
 import React from "react";
-
-import { CheckSquareOutlined, PictureOutlined } from "@ant-design/icons";
-import TooltipButton from "@/components/ui/custom-tooltip";
 import { toast } from "sonner";
+import { Brush, ImageIcon, SquareCheck } from "lucide-react";
+import TooltipButton from "@/components/ui/custom-tooltip";
 
 // Define the props for the TakeNote component
 interface TakeNoteProps {
@@ -12,34 +11,44 @@ interface TakeNoteProps {
 const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
   return (
     <div
-      className="hover:shadow-md p-2.5 ml-4 md:m-0 md:w-[26rem] md:mx-auto border rounded-sm cursor-pointer"
+      className="hover:border-gray-500 ml-4 md:m-0 md:w-[600px] md:mx-auto border rounded-sm cursor-pointer"
       onClick={() => ToggleHandler({})}
     >
       <div className="flex items-center justify-between ">
         {/* title */}
-        <label className="ml-2 text-gray-500 cursor-pointer font-semibold">
+        <label className=" text-gray-500 ml-4 cursor-pointer font-semibold">
           Take a note
         </label>
 
         {/* icons */}
         <div className="flex items-center">
           <TooltipButton
-            idx={1}
-            icon={<CheckSquareOutlined className="text-xl" />}
+            icon={<SquareCheck size={20} />}
             tooltipText="Add checkbox"
-            onClick={(e) => {
+            handleClick={(e) => {
               e.stopPropagation();
               toast.error("This feature is not implemented yet.");
             }}
+            isClickable={true}
           />
           <TooltipButton
-            idx={4}
-            icon={<PictureOutlined className="text-xl" />}
+            icon={<Brush size={20} />}
+            tooltipText="new note with drawing"
+            handleClick={(e) => {
+              e.stopPropagation();
+              toast.error("New note with drawing");
+            }}
+            isClickable={true}
+          />
+
+          <TooltipButton
+            icon={<ImageIcon size={20} />}
             tooltipText="Add drawing"
-            onClick={(e) => {
+            handleClick={(e) => {
               e.stopPropagation();
               toast.error("This feature is not implemented yet.");
             }}
+            isClickable={true}
           />
         </div>
       </div>

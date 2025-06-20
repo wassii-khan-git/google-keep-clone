@@ -13,7 +13,7 @@ export default function Home() {
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
-      // Close menu when switching to desktop
+      // Open menu when switching to desktop
       if (!mobile) setIsMenuClicked(false);
     };
 
