@@ -185,6 +185,27 @@ const NoteList = ({ data }: NoteProps) => {
     }
   };
 
+  // handle image upload
+  const handleImageUpload = async (noteId: string) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.onchange = (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      // if it contains any data
+      if (target && target.files?.[0]) {
+        // store it inthe db
+        // display message
+        toast.success("image uploaded successfully", {
+          description: target.files?.[0].name + " " + noteId,
+        });
+      }
+    };
+    // add the click event
+    input.click();
+  };
+
   // handle dropdown change
   const handleDropdownOpenChange = (
     noteId: string,
@@ -217,6 +238,7 @@ const NoteList = ({ data }: NoteProps) => {
     }
   };
 
+  // handle note mouse leave
   const handleNoteMouseLeave = (noteId: string) => {
     // Or, more precisely, if the dropdown for THIS note is not open.
     if (!openDropdowns.has(noteId)) {
@@ -276,7 +298,7 @@ const NoteList = ({ data }: NoteProps) => {
         title: "Add Image",
         icon: <ImageIcon size={18} />,
         isClickable: true,
-        handleClick: () => console.log("add image"),
+        handleClick: () => handleImageUpload(item._id as string),
         childs: [],
       },
       {
