@@ -250,7 +250,6 @@ const NoteList = ({ data }: NoteProps) => {
     if (session.data?.user.id) {
       fetchNotes(session.data.user.id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.data?.user.id]); // Dependency array to refetch when user ID changes
 
   useEffect(() => {
