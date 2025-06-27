@@ -1,15 +1,17 @@
 import React, { SetStateAction, useCallback } from "react";
 import { MoreVerticalIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import CustomDropdown, {
   MenuItemsProps,
   MenuChildsProps,
 } from "@/components/ui/custom-dropdown";
 import TooltipButton from "@/components/ui/custom-tooltip";
+import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 
 interface NoteOptionsProps {
   setIsMoreClicked: React.Dispatch<SetStateAction<boolean>>;
-  isMoreClicked: boolean;
+  isMoreClicked?: boolean;
   menuItemsProps: MenuItemsProps[];
   shouldShowHoverEffects: boolean;
   onDropdownOpenChange: (isOpen: boolean) => void;
@@ -17,7 +19,7 @@ interface NoteOptionsProps {
 
 const NoteOptions = ({
   setIsMoreClicked,
-  isMoreClicked,
+  // isMoreClicked,
   menuItemsProps,
   shouldShowHoverEffects,
   onDropdownOpenChange,
@@ -32,14 +34,15 @@ const NoteOptions = ({
       >
         <Button
           variant="outline"
-          className="h-8 w-8 rounded-full"
-          onClick={() => setIsMoreClicked(!isMoreClicked)}
+          className="h-8 w-8 rounded-full ml-2"
+          onClick={() => setIsMoreClicked((prev) => !prev)}
+          title="More options"
         >
           {<MoreVerticalIcon />}
         </Button>
       </CustomDropdown>
     ),
-    [isMoreClicked, onDropdownOpenChange, setIsMoreClicked]
+    [onDropdownOpenChange, setIsMoreClicked]
   );
 
   return (
