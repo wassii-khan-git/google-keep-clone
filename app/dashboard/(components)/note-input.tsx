@@ -26,7 +26,7 @@ const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
             icon={<SquareCheck size={20} />}
             tooltipText="Add checkbox"
             handleClick={(e) => {
-              e.stopPropagation();
+              e?.stopPropagation();
               toast.error("This feature is not implemented yet.");
             }}
             isClickable={true}
@@ -35,7 +35,7 @@ const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
             icon={<Brush size={20} />}
             tooltipText="new note with drawing"
             handleClick={(e) => {
-              e.stopPropagation();
+              e?.stopPropagation();
               toast.error("New note with drawing");
             }}
             isClickable={true}
@@ -45,7 +45,7 @@ const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
             icon={<ImageIcon size={20} />}
             tooltipText="Add drawing"
             handleClick={(e) => {
-              e.stopPropagation();
+              e?.stopPropagation();
               toast.error("This feature is not implemented yet.");
             }}
             isClickable={true}

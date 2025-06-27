@@ -5,6 +5,7 @@ import Note from "./(components)/note";
 import Navbar from "./(components)/common/navbar";
 import Sidebar from "./(components)/common/sidebar";
 
+// Home component
 export default function Home() {
   // menu item
   const [isMenuClicked, setIsMenuClicked] = useState<boolean>(false);

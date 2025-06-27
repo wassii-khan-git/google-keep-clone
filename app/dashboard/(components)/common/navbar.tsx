@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { handleSignOut } from "@/lib/actions/auth.action";
 import TooltipButton from "@/components/ui/custom-tooltip";
 import CustomDropdown, {
-  MoreOperationsItem,
+  MenuChildsProps,
 } from "@/components/ui/custom-dropdown";
 
 // Types
@@ -37,18 +37,6 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
     localStorage.setItem("menu", JSON.stringify({ active: true }));
     setIsMenuClicked((prev) => !prev);
   }, [setIsMenuClicked]);
-
-  const handleRefreshClick = useCallback(() => {
-    toast.error("Working on this feature");
-  }, []);
-
-  const handleListViewClick = useCallback(() => {
-    toast.error("Working on this feature");
-  }, []);
-
-  const handleSettingsClick = useCallback(() => {
-    toast.error("Working on this feature");
-  }, []);
 
   const handleSignOutClick = useCallback(async () => {
     try {
@@ -76,7 +64,7 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
   }, [setIsSearchFocused]);
 
   // Define menu items for the dropdown
-  const menuItems: MoreOperationsItem[] = [
+  const menuItems: MenuChildsProps[] = [
     {
       title: "Profile",
       icon: <ProfileOutlined />,
@@ -182,7 +170,7 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
                 <ReloadOutlined className="text-lg text-gray-600 hover:text-gray-800" />
               }
               tooltipText="Refresh"
-              onClick={handleRefreshClick}
+              handleClick={() => toast.error("Working on this feature")}
               isClickable={true}
             />
             <TooltipButton
@@ -190,7 +178,7 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
                 <PauseOutlined className="rotate-90 text-lg text-gray-600 hover:text-gray-800" />
               }
               tooltipText="List View"
-              onClick={handleListViewClick}
+              handleClick={() => toast.error("Working on this feature")}
               isClickable={false}
             />
             <TooltipButton
@@ -198,7 +186,7 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
                 <SettingOutlined className="text-lg text-gray-600 hover:text-gray-800" />
               }
               tooltipText="Settings"
-              onClick={handleSettingsClick}
+              handleClick={() => toast.error("Working on this feature")}
               isClickable={false}
             />
           </div>
