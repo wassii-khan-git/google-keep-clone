@@ -77,7 +77,7 @@ const NoteCard = React.memo(
           onMouseEnter={() => onMouseEnter(item._id as string)}
           onMouseLeave={() => onMouseLeave(item._id as string)}
           className={`
-             h-fit border rounded-sm relative
+             h-fit flex flex-col border rounded-sm relative
             ${
               isSelected
                 ? "border-black"
@@ -141,7 +141,7 @@ const NoteCard = React.memo(
             </div>
 
             {/* Note content */}
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <p className="text-gray-600 text-sm">
               {item.note.split("\n").map((line: string, idx: number) => (
                 <span key={idx}>
                   {line}
