@@ -4,7 +4,7 @@ import React, { useState } from "react";
 interface TooltipButtonProps {
   idx?: number;
   icon?: React.ReactNode;
-  handleClick?: (e: React.MouseEvent) => void;
+  handleClick?: (e?: React.MouseEvent) => void;
   tooltipText?: string;
   isClickable: boolean;
 }
