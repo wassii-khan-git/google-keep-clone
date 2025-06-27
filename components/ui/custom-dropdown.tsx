@@ -10,16 +10,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import React from "react";
 
-export interface MoreOperationsItem {
+export interface MenuChildsProps {
   title: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   isClickable: boolean;
   handleClick: () => void;
 }
 
+export interface MenuItemsProps {
+  title: string;
+  icon?: React.ReactNode;
+  isClickable: boolean;
+  handleClick: () => void;
+  childs: MenuChildsProps[];
+}
+
 interface CustomDropdownProps {
   title?: string;
-  menuitems: MoreOperationsItem[];
+  menuitems: MenuChildsProps[];
   children?: React.ReactNode;
   direction: "center" | "start" | "end";
   onOpenChange?: (isOpen: boolean) => void;
@@ -37,18 +45,22 @@ const CustomDropdown = ({
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align={direction}>
         {title && (
-          <>
+          <React.Fragment>
             <DropdownMenuLabel>{title}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-          </>
+          </React.Fragment>
         )}
         <DropdownMenuGroup>
           {menuitems.map((item, index) => (
             <React.Fragment key={index}>
               <DropdownMenuItem
-                onClick={() => item.isClickable && item.handleClick?.()}
+                onClick={() => {
+                  if (item?.isClickable) {
+                    item?.handleClick?.();
+                  }
+                }}
                 className={`${
-                  item.isClickable ? "cursor-pointer" : "cursor-not-allowed"
+                  item?.isClickable ? "cursor-pointer" : "cursor-not-allowed"
                 }`}
               >
                 {item.icon}
