@@ -92,7 +92,7 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
         toast.error(error.message);
       }
     }
-  }, [title, note, session, ToggleHandler, pinned]);
+  }, [title, note, session, ToggleHandler, isArchived, pinned]);
 
   // clickaawy
   useEffect(() => {
