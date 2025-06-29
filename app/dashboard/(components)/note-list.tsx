@@ -41,6 +41,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { MenuItemsProps } from "@/components/ui/custom-dropdown";
+import NoteDetailsDialog from "./note-dialog";
 
 interface NoteProps {
   data: INote;
@@ -414,21 +415,29 @@ const NoteList = ({ data }: NoteProps) => {
               strategy={rectSortingStrategy}
             >
               {notes.map((item) => (
-                <SortableNoteCard
-                  content="notes"
+                <NoteDetailsDialog
                   key={item._id as string}
-                  id={item._id as string} // Pass _id as the dnd-kit id
-                  item={item}
-                  selectedIds={selectedIds}
-                  shouldShowHoverEffects={shouldShowHoverEffects}
-                  setSelectedIds={setSelectedIds}
-                  setIsMoreClicked={setIsMoreClicked}
-                  isMoreClicked={isMoreClicked}
-                  pinUnpinNote={pinUnpinNote}
-                  handleDropdownOpenChange={handleDropdownOpenChange}
-                  menuitems={menuitems}
-                  onMouseEnter={handleNoteMouseEnter}
-                  onMouseLeave={handleNoteMouseLeave}
+                  note={item as INote}
+                  trigger={
+                    <div>
+                      <SortableNoteCard
+                        content="notes"
+                        key={item._id as string}
+                        id={item._id as string} // Pass _id as the dnd-kit id
+                        item={item}
+                        selectedIds={selectedIds}
+                        shouldShowHoverEffects={shouldShowHoverEffects}
+                        setSelectedIds={setSelectedIds}
+                        setIsMoreClicked={setIsMoreClicked}
+                        isMoreClicked={isMoreClicked}
+                        pinUnpinNote={pinUnpinNote}
+                        handleDropdownOpenChange={handleDropdownOpenChange}
+                        menuitems={menuitems}
+                        onMouseEnter={handleNoteMouseEnter}
+                        onMouseLeave={handleNoteMouseLeave}
+                      />
+                    </div>
+                  }
                 />
               ))}
             </SortableContext>
