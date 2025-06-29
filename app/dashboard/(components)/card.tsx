@@ -9,6 +9,7 @@ import NoteOptions from "./note-options";
 import { CSS } from "@dnd-kit/utilities"; // Import CSS for transform conversion
 import { PinIcon, PinOff } from "lucide-react";
 import { MenuItemsProps } from "@/components/ui/custom-dropdown";
+import { toast } from "sonner";
 
 interface NoteCardProps {
   selectedIds: string[];
