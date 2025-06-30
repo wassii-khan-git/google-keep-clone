@@ -36,7 +36,12 @@ const TooltipButton = ({
             ? "bg-none cursor-pointer"
             : "cursor-not-allowed hover:bg-none text-neutral-400"
         }  text-gray-500 inline-flex justify-center items-center p-3 rounded-full`}
-        onClick={isClickable ? handleClick : undefined}
+        onClick={(e) => {
+          if (isClickable && handleClick) {
+            e.stopPropagation();
+            handleClick(e);
+          }
+        }}
       >
         {icon}
       </label>

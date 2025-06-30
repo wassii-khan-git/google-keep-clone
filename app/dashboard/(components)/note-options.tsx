@@ -35,7 +35,10 @@ const NoteOptions = ({
         <Button
           variant="outline"
           className="h-8 w-8 rounded-full ml-2"
-          onClick={() => setIsMoreClicked((prev) => !prev)}
+          onClick={(e) => {
+            e?.stopPropagation();
+            setIsMoreClicked((prev) => !prev);
+          }}
           title="More options"
         >
           {<MoreVerticalIcon />}

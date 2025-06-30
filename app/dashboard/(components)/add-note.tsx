@@ -24,6 +24,12 @@ import {
   CornerDownLeft,
   CornerDownRight,
 } from "lucide-react";
+import {
+  DialogClose,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface CreateNoteResponse {
   success?: boolean;
@@ -32,13 +38,15 @@ interface CreateNoteResponse {
 
 interface NoteProps {
   ToggleHandler: ({ success, data }: CreateNoteResponse) => void;
+  isNoteDialog?: boolean;
+  noteItem?: INote; // Optional note prop for editing existing notes
 }
 
-const AddNote = ({ ToggleHandler }: NoteProps) => {
+const AddNote = ({ ToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   // title
-  const [title, setTitle] = useState<string>("");
+  const [title, setTitle] = useState<string>(noteItem?.title || "");
   // note
-  const [note, setNote] = useState<string>("");
+  const [note, setNote] = useState<string>(noteItem?.note || "");
   // note ref
   const noteRef = useRef<HTMLDivElement>(null);
   // input height
@@ -182,32 +190,65 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
       handleClick: () => toast.error("Redo"),
     },
   ];
+  console.log(note);
 
   return (
     <div
       ref={noteRef}
-      className={`hover:border-gray-500 p-2 w-full md:w-[600px] mx-auto border rounded-sm shadow `}
+      className={`hover:border-gray-500 p-2 w-full ${
+        !isNoteDialog && "md:w-[600px] mx-auto"
+      } border rounded-sm shadow `}
     >
-      <div className="flex justify-between mb-2">
-        {/* title */}
-        <input
-          autoFocus={true}
-          name="title"
-          id="title"
-          className="w-full resize-none border-none outline-none ml-2 font-semibold"
-          placeholder="Title"
-          onChange={(e) => {
-            setTitle(e.target.value);
-          }}
-        />
-        {/* bell outline */}
-        <TooltipButton
-          icon={!pinned ? <Pin size={18} /> : <PinOff size={18} />}
-          handleClick={() => setIsPinned((prev) => !prev)}
-          tooltipText="pinunpinNote"
-          isClickable={true}
-        />
-      </div>
+      {isNoteDialog ? (
+        <DialogHeader>
+          <DialogTitle>
+            <div className="flex justify-between">
+              {/* title */}
+              <input
+                autoFocus={true}
+                name="title"
+                id="title"
+                className="w-full resize-none border-none outline-none ml-2 font-semibold"
+                placeholder="Title"
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                }}
+                value={title}
+              />
+              {/* bell outline */}
+              <TooltipButton
+                icon={!pinned ? <Pin size={18} /> : <PinOff size={18} />}
+                handleClick={() => setIsPinned((prev) => !prev)}
+                tooltipText="pinunpinNote"
+                isClickable={true}
+              />
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+      ) : (
+        <div className="flex justify-between">
+          {/* title */}
+          <input
+            autoFocus={true}
+            name="title"
+            id="title"
+            className="w-full resize-none border-none outline-none ml-2 font-semibold"
+            placeholder="Title"
+            onChange={(e) => {
+              setTitle(e.target.value);
+            }}
+            value={title}
+          />
+          {/* bell outline */}
+          <TooltipButton
+            icon={!pinned ? <Pin size={18} /> : <PinOff size={18} />}
+            handleClick={() => setIsPinned((prev) => !prev)}
+            tooltipText="pinunpinNote"
+            isClickable={true}
+          />
+        </div>
+      )}
+
       {/* details */}
       <textarea
         ref={textAreaRef}
@@ -219,7 +260,19 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
           setNote(e.target.value);
           adjustTextareaHeight();
         }}
+        value={note}
       />
+      {/* Updated At Info */}
+      {isNoteDialog && (
+        <div className="flex justify-end font-semibold items-center mb-3 mr-2 text-[0.7rem] text-gray-600 mt-1">
+          Edited at{" "}
+          {new Date().toLocaleString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </div>
+      )}
+
       {/* note options */}
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
@@ -233,14 +286,27 @@ const AddNote = ({ ToggleHandler }: NoteProps) => {
             />
           ))}
         </div>
-        {/* close */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => ToggleHandler({ success: false })}
-        >
-          Close
-        </Button>
+        {isNoteDialog ? (
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => ToggleHandler({ success: false })}
+              >
+                Close
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => ToggleHandler({ success: false })}
+          >
+            Close
+          </Button>
+        )}
       </div>
     </div>
   );
