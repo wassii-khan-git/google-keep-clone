@@ -3,6 +3,8 @@
 import NotesModel, { INote } from "@/models/tasks.model";
 import DbConnect from "../db";
 import { NoteSchemaValidation } from "../validator";
+import { revalidatePath } from "next/cache";
+import fs from "fs";
 
 // create note payload interface
 export interface CreateNotePayload {
@@ -11,6 +13,7 @@ export interface CreateNotePayload {
   userId: string;
   isPinned?: boolean;
   isArchived?: boolean;
+  imageUrl?: string;
 }
 // Delete Note Payload interface
 export interface DeleteNotePayload {
@@ -27,10 +30,12 @@ export interface NotePayloadReturn {
 // update note payload interface
 export interface UpdateNotePayload {
   id: string;
+  userId: string;
   title?: string | null;
   note: string;
   isPinned?: boolean;
   isArchived?: boolean;
+  imageUrl?: string;
 }
 
 // create note function
@@ -56,6 +61,7 @@ export const CreateNote = async (
     // save the note to the database
     const savedNote = await newNote.save();
 
+    revalidatePath("/dashboard");
     return {
       success: true,
       message: "Note created successfully",
@@ -66,6 +72,52 @@ export const CreateNote = async (
     return {
       success: false,
       message: `Error creating note: ${error}`,
+      data: null,
+    };
+  }
+};
+
+// create note function
+export const UpdateNote = async (
+  payload: UpdateNotePayload
+): Promise<NotePayloadReturn> => {
+  try {
+    await DbConnect();
+
+    // Build dynamic $set object based only on provided properties
+    const updateFields: Partial<INote> = {};
+    if (payload.title !== undefined && payload.title !== null)
+      updateFields.title = payload.title;
+    if (payload.note !== undefined) updateFields.note = payload.note;
+    if (payload.isPinned !== undefined)
+      updateFields.isPinned = payload.isPinned;
+    if (payload.isArchived !== undefined)
+      updateFields.isArchived = payload.isArchived;
+
+    const updateDoc = Object.keys(updateFields).length
+      ? { $set: updateFields }
+      : {}; // no-op if nothing to set
+
+    const updatedNote = await NotesModel.findOneAndUpdate(
+      { userId: payload.userId },
+      updateDoc,
+      {
+        new: true, // return the updated document
+        runValidators: true, // enforce schema validation
+      }
+    );
+
+    return {
+      success: true,
+      message: "Note updated successfully",
+      data: updatedNote
+        ? (JSON.parse(JSON.stringify(updatedNote)) as INote)
+        : null,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `Error updating note: ${error}`,
       data: null,
     };
   }
@@ -219,6 +271,46 @@ export const PinnedNote = async ({
     return {
       success: false,
       message: "Failed to archive the note",
+    };
+  }
+};
+
+// Upload File
+export const UploadFile = async (formData: FormData) => {
+  try {
+    const file = formData.get("image") as File;
+    const noteId = formData.get("noteId") as string;
+
+    if (!file) {
+      return { success: false, message: "file is required" };
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
+    const imageUrl = `public/uploads/${file.name}`;
+    await fs.promises.writeFile(imageUrl, buffer);
+
+    const isNoteExists = await NotesModel.findByIdAndUpdate(
+      noteId,
+      { image: imageUrl },
+      { new: true, runValidators: true }
+    );
+
+    if (!isNoteExists) {
+      return {
+        success: false,
+        message: "Failed to upload image URL to MongoDB",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Successfully uploaded file",
+      data: JSON.parse(JSON.stringify(isNoteExists)),
+    };
+  } catch (error) {
+    return {
+      success: true,
+      message: error instanceof Error ? error.message : "Failed to upload",
     };
   }
 };
