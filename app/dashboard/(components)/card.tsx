@@ -124,7 +124,8 @@ const NoteCard = React.memo(
               ${showHover || isSelected ? "opacity-100" : "opacity-0"}
               left-[-1.2rem] top-[-1.2rem] transition-opacity duration-200 cursor-pointer
             `}
-              onClick={() => {
+              onClick={(e) => {
+                e?.stopPropagation();
                 setSelectedIds((prev: string[]) =>
                   prev.includes(item._id as string)
                     ? prev.filter((id: string) => id !== item._id)

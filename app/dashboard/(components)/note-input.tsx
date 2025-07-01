@@ -5,14 +5,14 @@ import TooltipButton from "@/components/ui/custom-tooltip";
 
 // Define the props for the TakeNote component
 interface TakeNoteProps {
-  ToggleHandler: (params: Record<string, unknown>) => void;
+  NoteToggleHandler: () => void;
 }
 
-const TakeNote = ({ ToggleHandler }: TakeNoteProps) => {
+const TakeNote = ({ NoteToggleHandler }: TakeNoteProps) => {
   return (
     <div
       className="hover:border-gray-500 ml-4 md:m-0 md:w-[600px] md:mx-auto border rounded-sm cursor-pointer"
-      onClick={() => ToggleHandler({})}
+      onClick={NoteToggleHandler}
     >
       <div className="flex items-center justify-between ">
         {/* title */}

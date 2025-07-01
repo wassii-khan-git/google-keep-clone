@@ -54,8 +54,9 @@ const CustomDropdown = ({
           {menuitems.map((item, index) => (
             <React.Fragment key={index}>
               <DropdownMenuItem
-                onClick={() => {
+                onClick={(e) => {
                   if (item?.isClickable) {
+                    e?.stopPropagation();
                     item?.handleClick?.();
                   }
                 }}

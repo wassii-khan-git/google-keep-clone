@@ -6,6 +6,7 @@ export interface INote extends Document {
   note: string;
   isPinned?: boolean;
   isArchived?: boolean;
+  image?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +33,9 @@ const NoteSchema = new Schema<INote>(
     isArchived: {
       type: Boolean,
       default: false,
+    },
+    image: {
+      type: String,
     },
   },
   { timestamps: true }
