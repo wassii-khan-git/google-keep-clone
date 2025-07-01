@@ -6,6 +6,7 @@ import {
   DeleteNote,
   GetAllNotes,
   PinnedNote,
+  UploadFile,
 } from "@/lib/actions/notes.actions";
 import { INote } from "@/models/tasks.model";
 import { notify } from "@/lib/utils";
@@ -42,12 +43,9 @@ import {
 } from "lucide-react";
 import { MenuItemsProps } from "@/components/ui/custom-dropdown";
 import NoteDetailsDialog from "./note-dialog";
+import useNoteStore from "@/store/note-store";
 
-interface NoteProps {
-  data: INote;
-}
-
-const NoteList = ({ data }: NoteProps) => {
+const NoteList = () => {
   const [notes, setNotes] = useState<INote[]>([]);
   const [pinnedNotes, setPinnedNotes] = useState<INote[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -56,9 +54,10 @@ const NoteList = ({ data }: NoteProps) => {
   const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
   const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set());
   const session = useSession();
+  const { notes: noteItems, isUpdate, emptyNotes } = useNoteStore();
 
   // fetch notes
-  const fetchNotes = async (id: string) => {
+  const fetchNotes = useCallback(async (id: string) => {
     setLoading(true);
     try {
       const response = await GetAllNotes({
@@ -79,10 +78,10 @@ const NoteList = ({ data }: NoteProps) => {
     } finally {
       setLoading(false); // Ensure loading state is reset
     }
-  };
+  }, []);
 
   // delete note
-  const deleteNote = React.useCallback(async (id: string) => {
+  const deleteNote = useCallback(async (id: string) => {
     try {
       const response = await DeleteNote({ id });
       if (response.success) {
@@ -106,7 +105,7 @@ const NoteList = ({ data }: NoteProps) => {
   }, []);
 
   // copy note
-  const copyNote = React.useCallback(async (note: INote) => {
+  const copyNote = useCallback(async (note: INote) => {
     try {
       const textToCopy = `${note.title ? note.title + "\n\n" : ""}${note.note}`;
       await navigator.clipboard.writeText(textToCopy);
@@ -124,7 +123,7 @@ const NoteList = ({ data }: NoteProps) => {
   }, []);
 
   // archive note
-  const archiveNote = React.useCallback(
+  const archiveNote = useCallback(
     async (note: INote) => {
       try {
         const response = await ArchiveNote({
@@ -153,116 +152,149 @@ const NoteList = ({ data }: NoteProps) => {
   );
 
   // pinunpin note
-  const pinUnpinNote = async (note: INote, flag: boolean) => {
-    try {
-      const response = await PinnedNote({
-        noteId: note._id as string,
-        userId: session?.data?.user.id as string,
-        flag,
-      });
-      if (response.success) {
-        const noteObj = response.data as INote;
-        toast.success(response.message);
+  const pinUnpinNote = useCallback(
+    async (note: INote, flag: boolean) => {
+      try {
+        const response = await PinnedNote({
+          noteId: note._id as string,
+          userId: session?.data?.user.id as string,
+          flag,
+        });
+        if (response.success) {
+          const noteObj = response.data as INote;
+          toast.success(response.message);
 
-        // Update state based on pin status
-        if (noteObj.isPinned) {
-          setPinnedNotes((prevNotes) => [noteObj, ...prevNotes]);
-          setNotes((prevNotes) =>
-            prevNotes.filter((item) => item._id !== noteObj._id)
-          );
+          // Update state based on pin status
+          if (noteObj.isPinned) {
+            setPinnedNotes((prevNotes) => [noteObj, ...prevNotes]);
+            setNotes((prevNotes) =>
+              prevNotes.filter((item) => item._id !== noteObj._id)
+            );
+          } else {
+            setNotes((prevNotes) => [noteObj, ...prevNotes]);
+            setPinnedNotes((prevPinned) =>
+              prevPinned.filter((item) => item._id !== noteObj._id)
+            );
+          }
         } else {
-          setNotes((prevNotes) => [noteObj, ...prevNotes]);
-          setPinnedNotes((prevPinned) =>
-            prevPinned.filter((item) => item._id !== noteObj._id)
-          );
+          toast.error(response.message);
         }
-      } else {
-        toast.error(response.message);
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        }
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      }
-    }
-  };
+    },
+    [session?.data?.user.id]
+  );
 
   // handle image upload
-  const handleImageUpload = async (noteId: string) => {
+  const handleImageUpload = useCallback(async (noteId: string) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
+    const formData = new FormData();
 
-    input.onchange = (event: Event) => {
+    input.onchange = async (event: Event) => {
       const target = event.target as HTMLInputElement;
       // if it contains any data
       if (target && target.files?.[0]) {
-        // store it inthe db
-        // display message
-        toast.success("image uploaded successfully", {
-          description: target.files?.[0].name + " " + noteId,
-        });
+        // set the attributes
+        formData.set("image", target.files?.[0]);
+        formData.set("noteId", noteId);
+        try {
+          const result = await UploadFile(formData);
+          if (result.success) {
+            toast.success("image uploaded successfully", {
+              description: result?.data?.note,
+            });
+          } else {
+            toast.error(result.message);
+          }
+        } catch (error) {
+          toast.error(
+            error instanceof Error ? error.message : "failed to upload"
+          );
+        }
       }
     };
     // add the click event
     input.click();
-  };
+  }, []);
 
   // handle dropdown change
-  const handleDropdownOpenChange = (
-    noteId: string,
-    isOpen: boolean
-  ): Set<string> => {
-    setOpenDropdowns((prevSet) => {
-      const newSet = new Set(prevSet);
-      if (isOpen) {
-        newSet.add(noteId);
-      } else {
-        newSet.delete(noteId);
-      }
-      return newSet;
-    });
-    return openDropdowns;
-  };
+  const handleDropdownOpenChange = useCallback(
+    (noteId: string, isOpen: boolean): Set<string> => {
+      setOpenDropdowns((prevSet) => {
+        const newSet = new Set(prevSet);
+        if (isOpen) {
+          newSet.add(noteId);
+        } else {
+          newSet.delete(noteId);
+        }
+        return newSet;
+      });
+      return openDropdowns;
+    },
+    [openDropdowns]
+  );
 
   // should hover effects
-  const shouldShowHoverEffects = (noteId: string) => {
-    return (
-      (hoveredNoteId === noteId && openDropdowns.size === 0) ||
-      openDropdowns.has(noteId)
-    );
-  };
+  const shouldShowHoverEffects = useCallback(
+    (noteId: string) => {
+      return (
+        (hoveredNoteId === noteId && openDropdowns.size === 0) ||
+        openDropdowns.has(noteId)
+      );
+    },
+    [hoveredNoteId, openDropdowns]
+  );
 
   // This prevents flickering if the mouse briefly leaves a card while its dropdown is open.
-  const handleNoteMouseEnter = (noteId: string) => {
-    if (openDropdowns.size === 0) {
-      setHoveredNoteId(noteId);
-    }
-  };
+  const handleNoteMouseEnter = useCallback(
+    (noteId: string) => {
+      if (openDropdowns.size === 0) {
+        setHoveredNoteId(noteId);
+      }
+    },
+    [openDropdowns]
+  );
 
   // handle note mouse leave
-  const handleNoteMouseLeave = (noteId: string) => {
-    // Or, more precisely, if the dropdown for THIS note is not open.
-    if (!openDropdowns.has(noteId)) {
-      setHoveredNoteId(null);
-    }
-  };
+  const handleNoteMouseLeave = useCallback(
+    (noteId: string) => {
+      // Or, more precisely, if the dropdown for THIS note is not open.
+      if (!openDropdowns.has(noteId)) {
+        setHoveredNoteId(null);
+      }
+    },
+    [openDropdowns]
+  );
 
   useEffect(() => {
     if (session.data?.user.id) {
       fetchNotes(session.data.user.id);
     }
-  }, [session.data?.user.id]); // Dependency array to refetch when user ID changes
+  }, [session.data?.user.id, fetchNotes]); // Dependency array to refetch when user ID changes
 
   useEffect(() => {
-    if (data && data.note) {
-      // Add newly created note to the appropriate list
-      if (!data.isPinned) {
-        setNotes((prevNotes) => [data, ...prevNotes]);
+    if (noteItems && noteItems?.[0]?.note) {
+      if (!noteItems?.[0]?.isPinned) {
+        const filterNotes = isUpdate
+          ? (prevNotes: INote[]) => [
+              ...prevNotes.map((i) =>
+                i._id === noteItems?.[0]._id ? noteItems?.[0] : i
+              ),
+            ]
+          : (prevNotes: INote[]) => [noteItems?.[0], ...prevNotes];
+        setNotes(filterNotes);
+        emptyNotes();
       } else {
-        setPinnedNotes((prevPinned) => [data, ...prevPinned]);
+        setPinnedNotes((prevPinned) => [noteItems?.[0], ...prevPinned]);
+        emptyNotes();
       }
     }
-  }, [data]); // Depend on 'data' to add new notes
+  }, [noteItems, isUpdate, emptyNotes]); // Depend on 'noteItems' to add new notes
 
   // menuItems
   const menuitems = useCallback(
@@ -323,11 +355,11 @@ const NoteList = ({ data }: NoteProps) => {
         childs: [],
       },
     ],
-    [copyNote, deleteNote, archiveNote]
+    [copyNote, deleteNote, handleImageUpload, archiveNote]
   ); // Dependencies for useCallback
 
-  // on drag
-  const onDragEnd = (event: DragEndEvent) => {
+  // on drag end - memoized
+  const onDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
 
     if (active.id === over?.id || !over) {
@@ -343,7 +375,7 @@ const NoteList = ({ data }: NoteProps) => {
       }
       return currentNotes;
     });
-  };
+  }, []);
 
   // Optimized Dnd-kit sensors
   const sensors = useSensors(
@@ -361,6 +393,7 @@ const NoteList = ({ data }: NoteProps) => {
 
   return (
     <div className="mx-auto p-5">
+      {/* Add Note */}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
