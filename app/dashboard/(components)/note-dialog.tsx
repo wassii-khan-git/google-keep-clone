@@ -17,7 +17,7 @@ export default function NoteDetailsDialog({
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className={cn("p-0 m-0 border-none")}>
-        <AddNote ToggleHandler={() => {}} isNoteDialog={true} noteItem={note} />
+        <AddNote isNoteDialog={true} noteItem={note} />
       </DialogContent>
     </Dialog>
   );
