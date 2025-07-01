@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { CreateNote } from "@/lib/actions/notes.actions";
+import {
+  CreateNote,
+  CreateNotePayload,
+  UpdateNote,
+  UpdateNotePayload,
+} from "@/lib/actions/notes.actions";
 import { INote } from "@/models/tasks.model";
 import { useSession } from "next-auth/react";
 import TooltipButton from "@/components/ui/custom-tooltip";
@@ -30,19 +35,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-interface CreateNoteResponse {
-  success?: boolean;
-  data?: INote;
-}
+import useNoteStore from "@/store/note-store";
+import { notify } from "@/lib/utils";
 
 interface NoteProps {
-  ToggleHandler: ({ success, data }: CreateNoteResponse) => void;
+  NoteToggleHandler?: () => void;
   isNoteDialog?: boolean;
   noteItem?: INote; // Optional note prop for editing existing notes
 }
 
-const AddNote = ({ ToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
+const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   // title
   const [title, setTitle] = useState<string>(noteItem?.title || "");
   // note
@@ -57,6 +59,8 @@ const AddNote = ({ ToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   const [pinned, setIsPinned] = useState<boolean>(false);
   // is archived
   const [isArchived, setIsArchived] = useState<boolean>(false);
+  // note store
+  const { mutateNotes } = useNoteStore();
 
   // Auto-resize textarea
   const adjustTextareaHeight = () => {
@@ -69,50 +73,115 @@ const AddNote = ({ ToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
     }
   };
 
+  const addNewNote = useCallback(
+    async (obj: CreateNotePayload) => {
+      try {
+        const response = await CreateNote(obj);
+        console.log("Response from CreateNote:", response);
+
+        if (response.success) {
+          // close the add note component
+          NoteToggleHandler?.();
+          // add the note the notes store
+          mutateNotes(response.data as INote, false);
+          // display the toast alert
+          notify({ message: "Note added successfully", flag: true });
+          // set fields empty
+          setTitle("");
+          setNote("");
+          setIsPinned(false);
+          setIsArchived(false);
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        }
+      }
+    },
+    [NoteToggleHandler, mutateNotes]
+  );
+
+  const updateNote = useCallback(
+    async (obj: UpdateNotePayload) => {
+      try {
+        const response = await UpdateNote(obj);
+        console.log("Response from CreateNote:", response);
+
+        if (response.success) {
+          // close the add note component
+          NoteToggleHandler?.();
+          // add the note the notes store
+          mutateNotes(response.data as INote, true);
+          // display the toast alert
+          notify({
+            message: response.message || "Note updated successfully",
+            flag: true,
+          });
+          // set fields empty
+          setTitle("");
+          setNote("");
+          setIsPinned(false);
+          setIsArchived(false);
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        }
+      }
+    },
+    [mutateNotes, NoteToggleHandler]
+  );
   // add note
-  const addNote = useCallback(async () => {
+  const addUpdateNote = useCallback(async () => {
     if (!title.trim() && !note.trim()) {
       console.log("Note is empty");
       return;
     }
-    const obj = {
+    const addObject = {
       title,
       note,
       userId: session?.data?.user?.id as string,
       isPinned: pinned as boolean,
       isArchived: isArchived as boolean,
     };
-    console.log("i am add note obj", obj);
 
-    try {
-      const response = await CreateNote(obj);
-      console.log("Response from CreateNote:", response);
+    const updateObject = {
+      id: noteItem?._id as string,
+      title,
+      note,
+      userId: session?.data?.user?.id as string,
+      isPinned: pinned as boolean,
+      isArchived: isArchived as boolean,
+    };
 
-      if (response.success) {
-        ToggleHandler({ success: true, data: response.data as INote });
-        setTitle("");
-        setNote("");
-        setIsPinned(false);
-        setIsArchived(false);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      }
+    if (!isNoteDialog) {
+      await addNewNote(addObject);
+    } else {
+      await updateNote(updateObject);
     }
-  }, [title, note, session, ToggleHandler, isArchived, pinned]);
+  }, [
+    isArchived,
+    isNoteDialog,
+    pinned,
+    session.data?.user.id,
+    addNewNote,
+    updateNote,
+    title,
+    note,
+    noteItem?._id,
+  ]);
 
   // clickaawy
   useEffect(() => {
     const clickAway = (e: Event) => {
       if (noteRef.current && !noteRef.current.contains(e.target as Node)) {
         console.log("Clicked outside the note area");
-        addNote();
+        addUpdateNote();
       }
     };
     document.addEventListener("mousedown", clickAway);
     return () => document.removeEventListener("mousedown", clickAway);
-  }, [noteRef, addNote]);
+  }, [noteRef, addUpdateNote]);
 
   const bottomIcons = [
     {
@@ -289,21 +358,13 @@ const AddNote = ({ ToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
         {isNoteDialog ? (
           <DialogFooter>
             <DialogClose asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => ToggleHandler({ success: false })}
-              >
+              <Button variant="outline" size="sm">
                 Close
               </Button>
             </DialogClose>
           </DialogFooter>
         ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => ToggleHandler({ success: false })}
-          >
+          <Button variant="outline" size="sm" onClick={NoteToggleHandler}>
             Close
           </Button>
         )}
