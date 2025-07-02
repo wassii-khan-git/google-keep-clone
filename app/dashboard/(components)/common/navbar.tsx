@@ -23,7 +23,7 @@ import CustomDropdown, {
 
 // Types
 export interface NavbarProps {
-  setIsMenuClicked: Dispatch<SetStateAction<boolean>>;
+  setIsMenuClicked?: Dispatch<SetStateAction<boolean>>;
   isMenuClicked?: boolean;
 }
 
@@ -35,8 +35,8 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
   // Memoized handlers
   const handleMenuClick = useCallback(() => {
     localStorage.setItem("menu", JSON.stringify({ active: true }));
-    setIsMenuClicked((prev) => !prev);
-  }, [setIsMenuClicked]);
+    // setIsMenuClicked((prev) => !prev);
+  }, []);
 
   const handleSignOutClick = useCallback(async () => {
     try {

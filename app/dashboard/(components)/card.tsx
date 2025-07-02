@@ -9,6 +9,7 @@ import NoteOptions from "./note-options";
 import { CSS } from "@dnd-kit/utilities"; // Import CSS for transform conversion
 import { PinIcon, PinOff } from "lucide-react";
 import { MenuItemsProps } from "@/components/ui/custom-dropdown";
+import Image from "next/image";
 
 interface NoteCardProps {
   selectedIds: string[];
@@ -87,6 +88,19 @@ const NoteCard = React.memo(
             ${isDragging ? "cursor-grabbing" : "cursor-grab"}
           `}
         >
+          {item.image && (
+            <div className="flex items-center border-b border-slate-200">
+              {/* image */}
+              <Image
+                src={`/${item?.image as string}`}
+                width={100}
+                height={100}
+                alt={item?.image as string}
+                className="w-full object-cover p-1"
+              />
+            </div>
+          )}
+
           <div className="px-4 py-1.5">
             {/* Top section: Title and Pin Icon */}
             <div className="flex justify-between items-center relative">

@@ -4,8 +4,10 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   CreateNote,
   CreateNotePayload,
+  DeleteFile,
   UpdateNote,
   UpdateNotePayload,
+  UploadFile,
 } from "@/lib/actions/notes.actions";
 import { INote } from "@/models/tasks.model";
 import { useSession } from "next-auth/react";
@@ -28,6 +30,7 @@ import {
   UserPlus,
   CornerDownLeft,
   CornerDownRight,
+  Trash,
 } from "lucide-react";
 import {
   DialogClose,
@@ -37,6 +40,7 @@ import {
 } from "@/components/ui/dialog";
 import useNoteStore from "@/store/note-store";
 import { notify } from "@/lib/utils";
+import Image from "next/image";
 
 interface NoteProps {
   NoteToggleHandler?: () => void;
@@ -49,6 +53,10 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   const [title, setTitle] = useState<string>(noteItem?.title || "");
   // note
   const [note, setNote] = useState<string>(noteItem?.note || "");
+  // note prop state
+  const [noteItemObj, setNoteItemObj] = useState<INote>(
+    (noteItem as INote) || {}
+  );
   // note ref
   const noteRef = useRef<HTMLDivElement>(null);
   // input height
@@ -61,6 +69,39 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   const [isArchived, setIsArchived] = useState<boolean>(false);
   // note store
   const { mutateNotes } = useNoteStore();
+
+  // handle image upload
+  const handleImageUpload = useCallback(async () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    const formData = new FormData();
+
+    input.onchange = async (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      // if it contains any data
+      if (target && target.files?.[0]) {
+        // set the attributes
+        formData.set("image", target.files?.[0]);
+        try {
+          const result = await UploadFile(formData);
+          if (result.success) {
+            toast.success("image uploaded successfully", {
+              description: result?.data?.image,
+            });
+          } else {
+            toast.error(result.message);
+          }
+        } catch (error) {
+          toast.error(
+            error instanceof Error ? error.message : "failed to upload"
+          );
+        }
+      }
+    };
+    // add the click event
+    input.click();
+  }, []);
 
   // Auto-resize textarea
   const adjustTextareaHeight = () => {
@@ -131,7 +172,8 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
     },
     [mutateNotes, NoteToggleHandler]
   );
-  // add note
+
+  // add update note
   const addUpdateNote = useCallback(async () => {
     if (!title.trim() && !note.trim()) {
       console.log("Note is empty");
@@ -145,19 +187,27 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
       isArchived: isArchived as boolean,
     };
 
-    const updateObject = {
-      id: noteItem?._id as string,
-      title,
-      note,
-      userId: session?.data?.user?.id as string,
-      isPinned: pinned as boolean,
-      isArchived: isArchived as boolean,
-    };
-
     if (!isNoteDialog) {
       await addNewNote(addObject);
     } else {
-      await updateNote(updateObject);
+      if (isNoteDialog && noteItemObj) {
+        const changed =
+          title !== noteItemObj.title ||
+          note !== noteItemObj.note ||
+          pinned !== noteItemObj.isPinned ||
+          isArchived !== noteItemObj.isArchived;
+        if (changed) {
+          const updateObject = {
+            id: noteItemObj?._id as string,
+            title,
+            note,
+            userId: session?.data?.user?.id as string,
+            isPinned: pinned as boolean,
+            isArchived: isArchived as boolean,
+          };
+          await updateNote(updateObject);
+        }
+      }
     }
   }, [
     isArchived,
@@ -168,7 +218,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
     updateNote,
     title,
     note,
-    noteItem?._id,
+    noteItemObj,
   ]);
 
   // clickaawy
@@ -235,7 +285,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
       handleClick: () => toast.error("Add collaborator"),
     },
     {
-      icon: <ImageIcon size={18} />,
+      icon: <ImageIcon size={18} onClick={() => handleImageUpload()} />,
       text: "Add Image",
       isClickable: true,
       handleClick: () => toast.error("Add Image"),
@@ -259,7 +309,8 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
       handleClick: () => toast.error("Redo"),
     },
   ];
-  console.log(note);
+
+  console.log("note item", noteItem);
 
   return (
     <div
@@ -268,10 +319,53 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
         !isNoteDialog && "md:w-[600px] mx-auto"
       } border rounded-sm shadow `}
     >
-      {isNoteDialog ? (
+      {isNoteDialog && noteItemObj ? (
         <DialogHeader>
           <DialogTitle>
-            <div className="flex justify-between">
+            {noteItemObj?.image && (
+              <>
+                <Image
+                  src={`/${noteItemObj?.image as string}`}
+                  width={100}
+                  height={100}
+                  alt={noteItemObj?.image as string}
+                  className="object-cover w-full"
+                />
+                <div className="mt-2 flex justify-end">
+                  <TooltipButton
+                    icon={<Trash size={18} />}
+                    tooltipText="Delete image"
+                    isClickable={true}
+                    handleClick={async () => {
+                      const response = await DeleteFile(
+                        noteItemObj._id as string
+                      );
+                      if (response.success) {
+                        toast.success(response.message);
+                        // add the note the notes store
+                        mutateNotes(response.data as INote, true);
+                        setNoteItemObj(
+                          (prev) =>
+                            ({
+                              ...(prev as INote),
+                              image: "" as string,
+                            } as INote)
+                        );
+                      } else {
+                        toast.error(response.message);
+                      }
+                    }}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* note update */}
+            <div
+              className={`flex justify-between ${
+                noteItemObj?.image && "border-t border-slate-200 mt-3"
+              }`}
+            >
               {/* title */}
               <input
                 autoFocus={true}

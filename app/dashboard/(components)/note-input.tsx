@@ -29,7 +29,7 @@ const TakeNote = ({ NoteToggleHandler }: TakeNoteProps) => {
               e?.stopPropagation();
               toast.error("This feature is not implemented yet.");
             }}
-            isClickable={true}
+            isClickable={false}
           />
           <TooltipButton
             icon={<Brush size={20} />}
@@ -38,14 +38,13 @@ const TakeNote = ({ NoteToggleHandler }: TakeNoteProps) => {
               e?.stopPropagation();
               toast.error("New note with drawing");
             }}
-            isClickable={true}
+            isClickable={false}
           />
 
           <TooltipButton
             icon={<ImageIcon size={20} />}
             tooltipText="Add drawing"
-            handleClick={(e) => {
-              e?.stopPropagation();
+            handleClick={() => {
               toast.error("This feature is not implemented yet.");
             }}
             isClickable={true}
