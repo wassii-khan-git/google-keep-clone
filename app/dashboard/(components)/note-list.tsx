@@ -406,7 +406,7 @@ const NoteList = () => {
   console.log("noteItems", noteItems);
 
   return (
-    <div className="mx-auto p-5">
+    <>
       {/* Add Note */}
       <DndContext
         sensors={sensors}
@@ -458,11 +458,11 @@ const NoteList = () => {
             Others
           </h2>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
           {loading ? (
-            <div className="flex items-center justify-start md:justify-center col-span-full">
+            <div className="flex items-center justify-center md:justify-center col-span-full">
               {/* Use col-span-full for full width loading */}
-              <LoaderCircle className="animate-spin text-gray-500" size={40} />
+              <LoaderCircle className="animate-spin text-gray-500" size={30} />
             </div>
           ) : notes.length > 0 ? (
             <SortableContext
@@ -502,7 +502,7 @@ const NoteList = () => {
           )}
         </div>
       </DndContext>
-    </div>
+    </>
   );
 };
 

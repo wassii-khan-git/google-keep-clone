@@ -38,18 +38,16 @@ export default function SortableNoteCard({
   return (
     // Apply touch-action-none to prevent default browser touch behaviors like scrolling
     // on the draggable element, which is crucial for smooth mobile dragging.
-    <div className="touch-action-none">
-      <NoteCard
-        content={content}
-        ref={setNodeRef} // Attach the ref for dnd-kit
-        transform={transform} // Pass dnd-kit's transform
-        transition={transition as unknown as Transition} // Pass dnd-kit's transition cast to Transition type
-        attributes={attributes} // Pass dnd-kit attributes
-        listeners={listeners} // Pass dnd-kit listeners
-        isDragging={isDragging} // Pass dnd-kit isDragging state
-        item={item}
-        {...rest} // Pass all other props
-      />
-    </div>
+    <NoteCard
+      content={content}
+      ref={setNodeRef} // Attach the ref for dnd-kit
+      transform={transform} // Pass dnd-kit's transform
+      transition={transition as unknown as Transition} // Pass dnd-kit's transition cast to Transition type
+      attributes={attributes} // Pass dnd-kit attributes
+      listeners={listeners} // Pass dnd-kit listeners
+      isDragging={isDragging} // Pass dnd-kit isDragging state
+      item={item}
+      {...rest} // Pass all other props
+    />
   );
 }

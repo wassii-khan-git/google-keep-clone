@@ -10,6 +10,7 @@ import { CSS } from "@dnd-kit/utilities"; // Import CSS for transform conversion
 import { PinIcon, PinOff } from "lucide-react";
 import { MenuItemsProps } from "@/components/ui/custom-dropdown";
 import Image from "next/image";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NoteCardProps {
   selectedIds: string[];
@@ -69,6 +70,8 @@ const NoteCard = React.memo(
         willChange: isDragging ? "transform, opacity" : "auto",
       };
 
+      const isMobile = useIsMobile();
+
       return (
         <div
           ref={ref}
@@ -78,7 +81,7 @@ const NoteCard = React.memo(
           onMouseEnter={() => onMouseEnter(item._id as string)}
           onMouseLeave={() => onMouseLeave(item._id as string)}
           className={`
-             h-fit flex flex-col border rounded-sm relative
+             h-fit  border rounded-sm relative
             ${
               isSelected
                 ? "border-black"
@@ -167,14 +170,16 @@ const NoteCard = React.memo(
           </div>
           {/* Bottom icons (More options) */}
           <div className="mb-1.5">
-            <NoteOptions
-              setIsMoreClicked={setIsMoreClicked}
-              menuItemsProps={menuitems(item as INote)}
-              shouldShowHoverEffects={showHover}
-              onDropdownOpenChange={(isOpen) =>
-                handleDropdownOpenChange(item._id as string, isOpen)
-              }
-            />
+            {!isMobile && (
+              <NoteOptions
+                setIsMoreClicked={setIsMoreClicked}
+                menuItemsProps={menuitems(item as INote)}
+                shouldShowHoverEffects={showHover}
+                onDropdownOpenChange={(isOpen) =>
+                  handleDropdownOpenChange(item._id as string, isOpen)
+                }
+              />
+            )}
           </div>
         </div>
       );

@@ -69,6 +69,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   const [isArchived, setIsArchived] = useState<boolean>(false);
   // note store
   const { mutateNotes } = useNoteStore();
+  // check if its the small screen
 
   // handle image upload
   const handleImageUpload = useCallback(async () => {
@@ -310,13 +311,11 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
     },
   ];
 
-  console.log("note item", noteItem);
-
   return (
     <div
       ref={noteRef}
       className={`hover:border-gray-500 p-2 w-full ${
-        !isNoteDialog && "md:w-[600px] mx-auto"
+        !isNoteDialog && "w-full md:w-[600px] mx-auto"
       } border rounded-sm shadow `}
     >
       {isNoteDialog && noteItemObj ? (
@@ -438,7 +437,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
 
       {/* note options */}
       <div className="flex justify-between items-center">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-0 sm:gap-2">
           {bottomIcons.map((item, index) => (
             <TooltipButton
               key={index}

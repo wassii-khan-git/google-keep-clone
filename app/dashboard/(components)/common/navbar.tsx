@@ -10,8 +10,7 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import Image from "next/image";
-import Link from "next/link";
-import React, { useState, useCallback, Dispatch, SetStateAction } from "react";
+import React, { useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -20,23 +19,12 @@ import TooltipButton from "@/components/ui/custom-tooltip";
 import CustomDropdown, {
   MenuChildsProps,
 } from "@/components/ui/custom-dropdown";
+import { useSidebar } from "@/components/ui/sidebar";
 
-// Types
-export interface NavbarProps {
-  setIsMenuClicked?: Dispatch<SetStateAction<boolean>>;
-  isMenuClicked?: boolean;
-}
-
-const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
+const Navbar = () => {
   const { data: session } = useSession();
   const [searchValue, setSearchValue] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-
-  // Memoized handlers
-  const handleMenuClick = useCallback(() => {
-    localStorage.setItem("menu", JSON.stringify({ active: true }));
-    // setIsMenuClicked((prev) => !prev);
-  }, []);
 
   const handleSignOutClick = useCallback(async () => {
     try {
@@ -85,46 +73,22 @@ const Navbar = ({ setIsMenuClicked }: NavbarProps) => {
     },
   ];
 
+  const { toggleSidebar } = useSidebar();
+
   return (
     <header className="sticky top-0 z-50 shadow-md">
-      <div className="flex justify-between items-center h-16 px-3 sm:px-4 lg:px-4">
+      <div className="flex justify-between items-center h-16 px-4 sm:px-4 lg:px-4">
         {/* Left Section: Menu + Logo */}
-        <div
-          className="flex items-center gap-2 sm:gap-3 min-w-0"
-          onClick={handleMenuClick}
-        >
-          {/* Hamburger Menu */}
-          <TooltipButton
-            icon={
-              <MenuOutlined
-                className={`text-lg text-gray-600 hover:text-gray-800`}
-              />
-            }
-            tooltipText="Main Menu"
-            isClickable={true}
-          />
-
-          {/* Logo */}
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 sm:gap-3 min-w-0 hover:opacity-80 transition-opacity duration-200"
-          >
-            <div className="flex-shrink-0">
-              <Image
-                src="/icon.png"
-                width={40}
-                height={40}
-                alt="Keep Logo"
-                className="w-8 h-8 sm:w-10 sm:h-10"
-                priority
-              />
-            </div>
-            <span className="hidden sm:block text-xl font-normal text-gray-600 truncate">
-              Keep
-            </span>
-          </Link>
-        </div>
-
+        <TooltipButton
+          icon={
+            <MenuOutlined
+              className={`text-lg text-gray-600 hover:text-gray-800`}
+            />
+          }
+          tooltipText="Main Menu"
+          isClickable={true}
+          handleClick={toggleSidebar}
+        />
         {/* Center Section: Search Bar */}
         <div className="flex-1 max-w-3xl mx-4 sm:mx-6 lg:mx-8">
           <div className="relative">
