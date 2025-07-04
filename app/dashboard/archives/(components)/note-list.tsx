@@ -4,13 +4,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   ArchiveNote,
   DeleteNote,
-  GetAllNotes,
   PinnedNote,
   UploadFile,
 } from "@/lib/actions/notes.actions";
 import { INote } from "@/models/tasks.model";
 import { notify } from "@/lib/utils";
-import EmptyNotes from "./empty-note";
+
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -31,7 +30,6 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import SortableNoteCard from "./sortable-note-card";
 import {
   BellPlus,
   EllipsisVertical,
@@ -42,8 +40,10 @@ import {
   UserPlus,
 } from "lucide-react";
 import { MenuItemsProps } from "@/components/ui/custom-dropdown";
-import NoteDetailsDialog from "./note-dialog";
 import useNoteStore from "@/store/note-store";
+import NoteDetailsDialog from "../../(components)/note-dialog";
+import SortableNoteCard from "../../(components)/sortable-note-card";
+import EmptyNotes from "../../(components)/empty-note";
 
 const NoteList = () => {
   const [notes, setNotes] = useState<INote[]>([]);
@@ -62,28 +62,28 @@ const NoteList = () => {
   } = useNoteStore();
 
   // fetch notes
-  const fetchNotes = useCallback(async (id: string) => {
-    setLoading(true);
-    try {
-      const response = await GetAllNotes({
-        userId: id,
-        archive: false,
-      });
-      if (response.success) {
-        const notesData = response.data as INote[];
-        setNotes(
-          notesData.filter((note) => !note.isArchived && !note.isPinned)
-        );
-        setPinnedNotes(
-          notesData.filter((note) => note.isPinned && !note.isArchived)
-        );
-      }
-    } catch (error) {
-      console.error("Failed to fetch notes:", error); // Use console.error for errors
-    } finally {
-      setLoading(false); // Ensure loading state is reset
-    }
-  }, []);
+  //   const fetchNotes = useCallback(async (id: string) => {
+  //     setLoading(true);
+  //     try {
+  //       const response = await GetAllNotes({
+  //         userId: id,
+  //         archive: false,
+  //       });
+  //       if (response.success) {
+  //         const notesData = response.data as INote[];
+  //         setNotes(
+  //           notesData.filter((note) => !note.isArchived && !note.isPinned)
+  //         );
+  //         setPinnedNotes(
+  //           notesData.filter((note) => note.isPinned && !note.isArchived)
+  //         );
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to fetch notes:", error); // Use console.error for errors
+  //     } finally {
+  //       setLoading(false); // Ensure loading state is reset
+  //     }
+  //   }, []);
 
   // delete note
   const deleteNote = useCallback(async (id: string) => {
@@ -280,11 +280,11 @@ const NoteList = () => {
     [openDropdowns]
   );
 
-  useEffect(() => {
-    if (session.data?.user.id) {
-      fetchNotes(session.data.user.id);
-    }
-  }, [session.data?.user.id, fetchNotes]); // Dependency array to refetch when user ID changes
+  //   useEffect(() => {
+  //     if (session.data?.user.id) {
+  //       fetchNotes(session.data.user.id);
+  //     }
+  //   }, [session.data?.user.id, fetchNotes]); // Dependency array to refetch when user ID changes
 
   useEffect(() => {
     if (noteItems && noteItems?.[0]?.note) {
@@ -406,7 +406,7 @@ const NoteList = () => {
   console.log("noteItems", noteItems);
 
   return (
-    <>
+    <div className="mx-auto p-5">
       {/* Add Note */}
       <DndContext
         sensors={sensors}
@@ -458,11 +458,11 @@ const NoteList = () => {
             Others
           </h2>
         )}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
           {loading ? (
-            <div className="flex items-center justify-center md:justify-center col-span-full">
+            <div className="flex items-center justify-start md:justify-center col-span-full">
               {/* Use col-span-full for full width loading */}
-              <LoaderCircle className="animate-spin text-gray-500" size={30} />
+              <LoaderCircle className="animate-spin text-gray-500" size={40} />
             </div>
           ) : notes.length > 0 ? (
             <SortableContext
@@ -502,7 +502,7 @@ const NoteList = () => {
           )}
         </div>
       </DndContext>
-    </>
+    </div>
   );
 };
 

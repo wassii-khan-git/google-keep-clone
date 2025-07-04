@@ -26,18 +26,16 @@ export interface NotePayloadReturn {
   data?: INote[] | INote | null;
   flag?: boolean;
 }
-
 // update note payload interface
 export interface UpdateNotePayload {
   id: string;
   userId: string;
   title?: string | null;
-  note: string;
+  note?: string;
   isPinned?: boolean;
   isArchived?: boolean;
   imageUrl?: string;
 }
-
 // create note function
 export const CreateNote = async (
   payload: CreateNotePayload
@@ -76,7 +74,6 @@ export const CreateNote = async (
     };
   }
 };
-
 // create note function
 export const UpdateNote = async (
   payload: UpdateNotePayload
@@ -99,7 +96,7 @@ export const UpdateNote = async (
       : {}; // no-op if nothing to set
 
     const updatedNote = await NotesModel.findOneAndUpdate(
-      { userId: payload.userId },
+      { _id: payload.id, userId: payload.userId },
       updateDoc,
       {
         new: true, // return the updated document
@@ -122,7 +119,6 @@ export const UpdateNote = async (
     };
   }
 };
-
 // get all notes function
 export const GetAllNotes = async ({
   userId,
@@ -139,7 +135,7 @@ export const GetAllNotes = async ({
       userId: userId,
       isArchived: archive,
     }).sort({
-      createdAt: -1,
+      updatedAt: -1,
     });
     // return the notes
     return {
@@ -156,7 +152,6 @@ export const GetAllNotes = async ({
     };
   }
 };
-
 // delete note function
 export const DeleteNote = async ({
   id,
@@ -173,6 +168,8 @@ export const DeleteNote = async ({
     if (!note) {
       return { success: false, message: "Note not found", data: null };
     }
+    // TODO:- also delete the images associated with the notes
+
     // return success message
     return {
       success: true,
@@ -188,7 +185,6 @@ export const DeleteNote = async ({
     };
   }
 };
-
 // set the note to archive
 export const ArchiveNote = async ({
   noteId,
@@ -230,7 +226,6 @@ export const ArchiveNote = async ({
     };
   }
 };
-
 // set the note to archive
 export const PinnedNote = async ({
   noteId,
@@ -274,7 +269,6 @@ export const PinnedNote = async ({
     };
   }
 };
-
 // Upload File
 export const UploadFile = async (formData: FormData) => {
   try {
@@ -287,11 +281,12 @@ export const UploadFile = async (formData: FormData) => {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
     const imageUrl = `public/uploads/${file.name}`;
+    const imagePath = `uploads/${file.name}`;
     await fs.promises.writeFile(imageUrl, buffer);
 
     const isNoteExists = await NotesModel.findByIdAndUpdate(
-      noteId,
-      { image: imageUrl },
+      { _id: noteId },
+      { image: imagePath },
       { new: true, runValidators: true }
     );
 
@@ -311,6 +306,60 @@ export const UploadFile = async (formData: FormData) => {
     return {
       success: true,
       message: error instanceof Error ? error.message : "Failed to upload",
+    };
+  }
+};
+// Delete File
+export const DeleteFile = async (noteId: string) => {
+  try {
+    if (!noteId) {
+      return { success: false, message: "noteId is required" };
+    }
+
+    // Find the note by ID
+    const note = await NotesModel.findById(noteId);
+    if (!note) {
+      return { success: false, message: "Note not found" };
+    }
+
+    // Ensure the imageUrl field exists before attempting to unset
+    if (note.image) {
+      // Unset the imageUrl field in the database
+      const updatedNote = await NotesModel.findByIdAndUpdate(
+        noteId,
+        { $unset: { image: "" } },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedNote) {
+        return { success: false, message: "Failed to update note in MongoDB" };
+      }
+
+      // Delete the image file from the filesystem
+      try {
+        await fs.promises.unlink(`public/${note.image}`);
+      } catch (err) {
+        return {
+          success: false,
+          message: `${
+            err instanceof Error ? err.message : "Failed to delete file"
+          }`,
+        };
+      }
+
+      return {
+        success: true,
+        message: "Successfully deleted image file",
+        data: JSON.parse(JSON.stringify(updatedNote)),
+      };
+    } else {
+      return { success: false, message: "No image URL found in the note" };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 };

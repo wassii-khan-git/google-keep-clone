@@ -9,6 +9,8 @@ import NoteOptions from "./note-options";
 import { CSS } from "@dnd-kit/utilities"; // Import CSS for transform conversion
 import { PinIcon, PinOff } from "lucide-react";
 import { MenuItemsProps } from "@/components/ui/custom-dropdown";
+import Image from "next/image";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NoteCardProps {
   selectedIds: string[];
@@ -68,6 +70,8 @@ const NoteCard = React.memo(
         willChange: isDragging ? "transform, opacity" : "auto",
       };
 
+      const isMobile = useIsMobile();
+
       return (
         <div
           ref={ref}
@@ -77,7 +81,7 @@ const NoteCard = React.memo(
           onMouseEnter={() => onMouseEnter(item._id as string)}
           onMouseLeave={() => onMouseLeave(item._id as string)}
           className={`
-             h-fit flex flex-col border rounded-sm relative
+             h-fit  border rounded-sm relative
             ${
               isSelected
                 ? "border-black"
@@ -87,6 +91,19 @@ const NoteCard = React.memo(
             ${isDragging ? "cursor-grabbing" : "cursor-grab"}
           `}
         >
+          {item.image && (
+            <div className="flex items-center border-b border-slate-200">
+              {/* image */}
+              <Image
+                src={`/${item?.image as string}`}
+                width={100}
+                height={100}
+                alt={item?.image as string}
+                className="w-full object-cover p-1"
+              />
+            </div>
+          )}
+
           <div className="px-4 py-1.5">
             {/* Top section: Title and Pin Icon */}
             <div className="flex justify-between items-center relative">
@@ -153,14 +170,16 @@ const NoteCard = React.memo(
           </div>
           {/* Bottom icons (More options) */}
           <div className="mb-1.5">
-            <NoteOptions
-              setIsMoreClicked={setIsMoreClicked}
-              menuItemsProps={menuitems(item as INote)}
-              shouldShowHoverEffects={showHover}
-              onDropdownOpenChange={(isOpen) =>
-                handleDropdownOpenChange(item._id as string, isOpen)
-              }
-            />
+            {!isMobile && (
+              <NoteOptions
+                setIsMoreClicked={setIsMoreClicked}
+                menuItemsProps={menuitems(item as INote)}
+                shouldShowHoverEffects={showHover}
+                onDropdownOpenChange={(isOpen) =>
+                  handleDropdownOpenChange(item._id as string, isOpen)
+                }
+              />
+            )}
           </div>
         </div>
       );

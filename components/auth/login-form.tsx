@@ -55,7 +55,7 @@ export function LoginForm({
       } else if (result?.ok) {
         await getSession();
         toast.success("Login successful!");
-        router.push("/dashboard");
+        router.push("/dashboard/notes");
         router.refresh();
       }
     } catch (err) {
@@ -71,7 +71,7 @@ export function LoginForm({
     try {
       setLoading(true);
       const result = await signIn("google", {
-        callbackUrl: "/dashboard", // Explicitly set callback URL
+        callbackUrl: "/dashboard/notes", // Explicitly set callback URL
         redirect: false,
       });
 

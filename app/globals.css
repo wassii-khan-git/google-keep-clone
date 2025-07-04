@@ -118,18 +118,7 @@
     @apply bg-background text-foreground;
   }
 }
-/* cards options */
-.options {
-  display: none;
-}
-.note:hover .options {
-  display: flex;
-}
 
 .ring-offset-background {
   display: none;
 }
-
-/* .touch-action-none {
-  touch-action: none;
-} */

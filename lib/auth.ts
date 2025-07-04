@@ -79,18 +79,8 @@ export const authOptions = {
     },
     async session({ session, token }): Promise<Session> {
       if (token) {
-        (
-          session.user as typeof session.user & {
-            id?: string;
-            provider?: string;
-          }
-        ).id = token.userId as string;
-        (
-          session.user as typeof session.user & {
-            id?: string;
-            provider?: string;
-          }
-        ).provider = token.provider as string;
+        session.user.id = token.userId ?? "";
+        session.user.provider = token.provider ?? "";
       }
       return session;
     },

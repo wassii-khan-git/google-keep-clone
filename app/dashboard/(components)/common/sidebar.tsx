@@ -1,16 +1,12 @@
 "use client";
-import {
-  BellOutlined,
-  BulbOutlined,
-  CopyOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
+
+import { Bell, Copy, Lightbulb, Trash } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 
 interface SidebarProps {
-  isMenuClicked: boolean;
+  isMenuClicked?: boolean;
 }
 
 export default function Sidebar({ isMenuClicked }: SidebarProps) {
@@ -20,23 +16,23 @@ export default function Sidebar({ isMenuClicked }: SidebarProps) {
   const sidebarItems = [
     {
       title: "Notes",
-      icon: <BulbOutlined className="text-xl" />,
-      link: "/dashboard",
+      icon: <Lightbulb size={18} />,
+      link: "/dashboard/notes",
     },
     {
       title: "Reminders",
-      icon: <BellOutlined className="text-xl" />,
+      icon: <Bell size={18} />,
       link: "/reminders",
     },
     {
       title: "Archive",
-      icon: <CopyOutlined className="text-xl" />,
-      link: "/archives",
+      icon: <Copy size={18} />,
+      link: "/dashboard/archives",
     },
     {
       title: "Bin",
-      icon: <DeleteOutlined className="text-xl" />,
-      link: "/bin",
+      icon: <Trash size={18} />,
+      link: "/dashboard/bin",
     },
   ];
 
@@ -53,13 +49,13 @@ export default function Sidebar({ isMenuClicked }: SidebarProps) {
             key={index}
             className={`flex pl-7 gap-7 p-3 mt-1 ${
               item.link === pathname ? "bg-amber-100" : "hover:bg-gray-200"
-            }   rounded-r-full cursor-pointer`}
+            }   rounded-r-full cursor-pointer text-sm`}
           >
             <label className="cursor-pointer">{item.icon}</label>
             <label
               className={`${
                 isMenuClicked ? "md:hidden" : "md:block"
-              } cursor-pointer`}
+              } text-sm cursor-pointer`}
             >
               {item.title}
             </label>
