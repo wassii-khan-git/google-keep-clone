@@ -80,8 +80,7 @@ const NoteCard = React.memo(
           style={dndStyle} // Apply dnd-kit controlled styles here
           onMouseEnter={() => onMouseEnter(item._id as string)}
           onMouseLeave={() => onMouseLeave(item._id as string)}
-          className={`
-             h-fit  border rounded-sm relative
+          className={` border rounded-sm relative
             ${
               isSelected
                 ? "border-black"
