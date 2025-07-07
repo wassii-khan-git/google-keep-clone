@@ -13,10 +13,11 @@ export default function NoteDetailsDialog({
   note,
   trigger,
 }: NoteDetailsDialogProps) {
+  // check if its the small screen
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className={cn("p-0 m-0 border-none")}>
+      <DialogContent className={cn(`p-0 m-0 border-none`)}>
         <AddNote isNoteDialog={true} noteItem={note} />
       </DialogContent>
     </Dialog>
