@@ -75,6 +75,9 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   // note store
   const { mutateNotes } = useNoteStore();
 
+  // is title and note changed
+  const [isFormChanged, setIsFormChanged] = useState<boolean>(false);
+
   const isMobile = useIsMobile();
   // handle image upload
   const handleImageUpload = useCallback(async () => {
@@ -171,6 +174,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
           setNote("");
           setIsPinned(false);
           setIsArchived(false);
+          setIsFormChanged(false);
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -388,6 +392,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
                 placeholder="Title"
                 onChange={(e) => {
                   setTitle(e.target.value);
+                  setIsFormChanged(true);
                 }}
                 value={title}
               />
@@ -441,6 +446,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
         onChange={(e) => {
           setNote(e.target.value);
           if (!isMobile) adjustTextareaHeight();
+          setIsFormChanged(true);
         }}
         value={note}
       >
@@ -474,18 +480,17 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
             <CustomDropdown
               title="More options"
               menuitems={bottomIcons}
-              children={
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="rounded-full cursor-pointer hover:bg-gray-200 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <MoreVertical size={18} />
-                </Button>
-              }
               direction="start"
               onOpenChange={() => {}}
-            />
+            >
+              <Button
+                variant="secondary"
+                size="icon"
+                className="rounded-full cursor-pointer hover:bg-gray-200 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <MoreVertical size={18} />
+              </Button>
+            </CustomDropdown>
           ) : (
             bottomIcons.map((item, index) => (
               <TooltipButton
@@ -510,13 +515,27 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
           )}
 
           {isNoteDialog ? (
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline" size="sm">
-                  Close
+            <div className="flex items-center gap-2">
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline" size="sm">
+                    Close
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+              {isNoteDialog && isMobile && isFormChanged && (
+                <Button
+                  variant="outline"
+                  className="transition-all fade-in duration-300 bg-emerald-500 hover:bg-emerald-400 text-white hover:text-white"
+                  size="sm"
+                  onClick={() => {
+                    addUpdateNote();
+                  }}
+                >
+                  Save Changes
                 </Button>
-              </DialogClose>
-            </DialogFooter>
+              )}
+            </div>
           ) : (
             <Button variant="outline" size="sm" onClick={NoteToggleHandler}>
               Close
