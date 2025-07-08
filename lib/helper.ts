@@ -15,7 +15,7 @@ export const deleteFromBlob = async (pathname: string) => {
   // Blob SDK currently doesn't support delete via JS SDK – you'd need API route to call REST DELETE
   // For now, this is a stub to handle cleanup.
 
-  await del(pathname);
+  await del(pathname, { token: process.env.BLOB_READ_WRITE_TOKEN });
 
   return new Response();
 };
