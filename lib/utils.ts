@@ -14,3 +14,16 @@ export function cn(...inputs: ClassValue[]) {
 
 export const notify = ({ message, flag }: Notify) =>
   flag ? toast.success(message) : toast.error(message);
+
+// function to display only 5 words from a string
+export const limitWords = (notes: string, limit: number) => {
+  if (!notes) return "";
+
+  const words = notes.split(" ");
+
+  if (words.length > limit) {
+    return words.slice(0, limit).join(" ") + "...";
+  }
+
+  return notes.split("\n").join(" ");
+};

@@ -11,6 +11,7 @@ import { PinIcon, PinOff } from "lucide-react";
 import { MenuItemsProps } from "@/components/ui/custom-dropdown";
 import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { limitWords } from "@/lib/utils";
 
 interface NoteCardProps {
   selectedIds: string[];
@@ -80,7 +81,9 @@ const NoteCard = React.memo(
           style={dndStyle} // Apply dnd-kit controlled styles here
           onMouseEnter={() => onMouseEnter(item._id as string)}
           onMouseLeave={() => onMouseLeave(item._id as string)}
-          className={` max-w-[20rem] border rounded-sm relative
+          className={`${
+            isMobile && "h-32"
+          }  max-w-[20rem] border rounded-sm relative
 
             ${
               isSelected
@@ -159,14 +162,7 @@ const NoteCard = React.memo(
             </div>
 
             {/* Note content */}
-            <p className="text-gray-600 text-sm">
-              {item.note.split("\n").map((line: string, idx: number) => (
-                <span key={idx}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-            </p>
+            <p className="text-gray-600 text-sm">{limitWords(item.note, 5)}</p>
           </div>
           {/* Bottom icons (More options) */}
           <div className="mb-1.5">

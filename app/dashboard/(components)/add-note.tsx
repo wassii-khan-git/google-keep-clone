@@ -31,6 +31,7 @@ import {
   CornerDownLeft,
   CornerDownRight,
   Trash,
+  MoreVertical,
 } from "lucide-react";
 import {
   DialogClose,
@@ -42,6 +43,9 @@ import useNoteStore from "@/store/note-store";
 import { notify } from "@/lib/utils";
 import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-mobile";
+import CustomDropdown, {
+  MenuItemsProps,
+} from "@/components/ui/custom-dropdown";
 
 interface NoteProps {
   NoteToggleHandler?: () => void;
@@ -70,6 +74,9 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   const [isArchived, setIsArchived] = useState<boolean>(false);
   // note store
   const { mutateNotes } = useNoteStore();
+
+  // is title and note changed
+  const [isFormChanged, setIsFormChanged] = useState<boolean>(false);
 
   const isMobile = useIsMobile();
   // handle image upload
@@ -167,6 +174,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
           setNote("");
           setIsPinned(false);
           setIsArchived(false);
+          setIsFormChanged(false);
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -237,34 +245,34 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
     return () => document.removeEventListener("mousedown", clickAway);
   }, [noteRef, addUpdateNote]);
 
-  const bottomIcons = [
+  const bottomIcons: MenuItemsProps[] = [
     {
       icon: <Type size={18} />,
-      text: "Formatting options",
+      title: "Formatting options",
       isClickable: false,
       handleClick: () => toast.error("text formating is clicked"),
-      child: [
+      childs: [
         {
           icon: <Heading1 size={18} />,
-          text: "Heading 1",
+          title: "Heading 1",
           isClickable: false,
           handleClick: () => toast.error("H1"),
         },
         {
           icon: <Heading2 size={18} />,
-          text: "Heading 2",
+          title: "Heading 2",
           isClickable: false,
           handleClick: () => toast.error("H2"),
         },
         {
           icon: <Bold size={18} />,
-          text: "Bold",
+          title: "Bold",
           isClickable: false,
           handleClick: () => toast.error("Bold"),
         },
         {
           icon: <Italic size={18} />,
-          text: "italic",
+          title: "italic",
           isClickable: false,
           handleClick: () => toast.error("italic"),
         },
@@ -272,45 +280,52 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
     },
     {
       icon: <Palette size={18} />,
-      text: "Background Options",
+      title: "Background Options",
       isClickable: true,
       handleClick: () => toast.error("background options"),
+      childs: [],
     },
     {
       icon: <BellPlus size={18} />,
-      text: "Remind me",
+      title: "Remind me",
       isClickable: true,
       handleClick: () => toast.error("Remind me"),
+      childs: [],
     },
     {
       icon: <UserPlus size={18} />,
-      text: "Add collaborator",
+      title: "Add collaborator",
       isClickable: true,
       handleClick: () => toast.error("Add collaborator"),
+      childs: [],
     },
     {
-      icon: <ImageIcon size={18} onClick={() => handleImageUpload()} />,
-      text: "Add Image",
+      icon: <ImageIcon size={18} />,
+      title: "Add Image",
       isClickable: true,
-      handleClick: () => toast.error("Add Image"),
+      handleClick: handleImageUpload,
+      childs: [],
     },
     {
       icon: !isArchived ? <FolderDown size={18} /> : <FolderUp size={18} />,
-      text: "archive",
+      title: "archive",
       isClickable: true,
       handleClick: () => setIsArchived((prev) => !prev),
+      childs: [],
     },
     {
       icon: <CornerDownLeft size={18} />,
-      text: "Undo",
+      title: "Undo",
       isClickable: false,
       handleClick: () => toast.error("Undo"),
+      childs: [],
     },
     {
       icon: <CornerDownRight size={18} />,
-      text: "Redo",
+      title: "Redo",
       isClickable: false,
       handleClick: () => toast.error("Redo"),
+      childs: [],
     },
   ];
 
@@ -318,7 +333,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
     <div
       ref={noteRef}
       className={`hover:border-gray-500 p-2 w-full ${
-        !isNoteDialog && "w-full md:w-[600px] mx-auto"
+        !isNoteDialog && "md:w-[600px] mx-auto"
       }  border rounded-sm shadow `}
     >
       {isNoteDialog && noteItemObj ? (
@@ -377,6 +392,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
                 placeholder="Title"
                 onChange={(e) => {
                   setTitle(e.target.value);
+                  setIsFormChanged(true);
                 }}
                 value={title}
               />
@@ -421,10 +437,8 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
         id="note"
         className={`w-full ${
           isNoteDialog && isMobile
-            ? "h-[calc(100vh-180px)]"
-
-            : noteItemObj?.note?.length > 20
-
+            ? "h-[calc(100vh-220px)]"
+            : noteItemObj?.note?.split(" ").length > 5
             ? "h-60"
             : ""
         } text-gray-500 resize-none border-none outline-none ml-2 font-semibold`}
@@ -432,9 +446,17 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
         onChange={(e) => {
           setNote(e.target.value);
           if (!isMobile) adjustTextareaHeight();
+          setIsFormChanged(true);
         }}
         value={note}
-      />
+      >
+        {note.split("/n").map((line, index) => (
+          <React.Fragment key={index}>
+            {line}
+            {index < note.split("/n").length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </textarea>
       {isNoteDialog && !isMobile && (
         <div
           className={`flex justify-end font-semibold items-center mb-3 mr-2 text-[0.7rem] text-gray-600 mt-1`}
@@ -449,47 +471,71 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
 
       {/* note options */}
       <div
-
         className={` ${
           isMobile && "flex flex-col justify-end overflow-hidden"
         } w-full `}
-
       >
-        {/* Updated At Info */}
-        {isNoteDialog && isMobile && (
-          <div
-            className={`flex ${
-              isMobile && "w-full"
-            }  justify-end font-semibold items-center mb-3 text-[0.7rem] text-gray-600 mt-1`}
-          >
-            Edited at{" "}
-            {new Date().toLocaleString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </div>
-        )}
+        <div className={`flex justify-between items-center gap-0`}>
+          {isMobile ? (
+            <CustomDropdown
+              title="More options"
+              menuitems={bottomIcons}
+              direction="start"
+              onOpenChange={() => {}}
+            >
+              <Button
+                variant="secondary"
+                size="icon"
+                className="rounded-full cursor-pointer hover:bg-gray-200 active:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <MoreVertical size={18} />
+              </Button>
+            </CustomDropdown>
+          ) : (
+            bottomIcons.map((item, index) => (
+              <TooltipButton
+                key={index}
+                icon={item.icon}
+                tooltipText={item.title}
+                handleClick={() => item?.handleClick()}
+                isClickable={item.isClickable}
+              />
+            ))
+          )}
 
-        <div
-          className={`flex justify-between items-center flex-wrap gap-0 sm:gap-2`}
-        >
-          {bottomIcons.map((item, index) => (
-            <TooltipButton
-              key={index}
-              icon={item.icon}
-              tooltipText={item.text}
-              handleClick={() => item?.handleClick()}
-              isClickable={item.isClickable}
-            />
-          ))}
+          {/* Updated At Info */}
+          {isNoteDialog && isMobile && (
+            <h5 className="text-sm text-gray-500 font-semibold">
+              Edited at{" "}
+              {new Date().toLocaleString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </h5>
+          )}
+
           {isNoteDialog ? (
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline" size="sm">
-                  Close
+            <div className="flex items-center gap-2">
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline" size="sm">
+                    Close
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+              {isNoteDialog && isMobile && isFormChanged && (
+                <Button
+                  variant="outline"
+                  className="transition-all fade-in duration-300 bg-emerald-500 hover:bg-emerald-400 text-white hover:text-white"
+                  size="sm"
+                  onClick={() => {
+                    addUpdateNote();
+                  }}
+                >
+                  Save Changes
                 </Button>
-              </DialogClose>
-            </DialogFooter>
+              )}
+            </div>
           ) : (
             <Button variant="outline" size="sm" onClick={NoteToggleHandler}>
               Close

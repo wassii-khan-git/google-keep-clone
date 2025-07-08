@@ -37,13 +37,13 @@ import {
   EllipsisVertical,
   FolderDown,
   ImageIcon,
-  LoaderCircle,
   Palette,
   UserPlus,
 } from "lucide-react";
 import { MenuItemsProps } from "@/components/ui/custom-dropdown";
 import NoteDetailsDialog from "./note-dialog";
 import useNoteStore from "@/store/note-store";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const NoteList = () => {
   const [notes, setNotes] = useState<INote[]>([]);
@@ -418,7 +418,9 @@ const NoteList = () => {
       >
         {/* Pinned Notes Section */}
         {pinnedNotes.length > 0 && (
-          <h2 className="text-sm font-semibold text-gray-800 mb-3">Pinned</h2>
+          <h2 className="mt-5 text-sm font-semibold text-gray-800 mb-3">
+            Pinned
+          </h2>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
@@ -464,7 +466,7 @@ const NoteList = () => {
           {loading ? (
             <div className="flex items-center justify-center md:justify-center col-span-full">
               {/* Use col-span-full for full width loading */}
-              <LoaderCircle className="animate-spin text-gray-500" size={30} />
+              <LoadingOutlined className="text-3xl text-gray-500" />
             </div>
           ) : notes.length > 0 ? (
             <SortableContext

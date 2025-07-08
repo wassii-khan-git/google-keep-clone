@@ -22,7 +22,7 @@ export function LogoHeader({}: {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="flex items-center gap-3 sm:gap-3 min-w-0">
               {/* Logo */}
               <Link
                 href="/dashboard/notes"
