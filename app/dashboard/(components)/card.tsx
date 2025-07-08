@@ -95,7 +95,7 @@ const NoteCard = React.memo(
             <div className="flex items-center border-b border-slate-200">
               {/* image */}
               <Image
-                src={`/${item?.image as string}`}
+                src={`${item?.image as string}`}
                 width={100}
                 height={100}
                 alt={item?.image as string}

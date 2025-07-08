@@ -214,8 +214,10 @@ const NoteList = () => {
               description: result?.data?.image,
             });
             // update the local state
-            setNotes((prevState) => [
-              ...prevState.map((i) => (i._id === noteId ? result.data : i)),
+            setNotes((prevState: INote[]): INote[] => [
+              ...prevState.map((i: INote) =>
+                i._id === noteId ? (result.data as INote) : i
+              ),
             ]);
           } else {
             toast.error(result.message);

@@ -327,7 +327,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
             {noteItemObj?.image && (
               <>
                 <Image
-                  src={`/${noteItemObj?.image as string}`}
+                  src={`${noteItemObj?.image as string}`}
                   width={100}
                   height={100}
                   alt={noteItemObj?.image as string}

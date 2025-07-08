@@ -4,7 +4,7 @@ import NotesModel, { INote } from "@/models/tasks.model";
 import DbConnect from "../db";
 import { NoteSchemaValidation } from "../validator";
 import { revalidatePath } from "next/cache";
-import fs from "fs";
+import { deleteFromBlob, uploadToBlob } from "../helper";
 
 // create note payload interface
 export interface CreateNotePayload {
@@ -271,95 +271,60 @@ export const PinnedNote = async ({
 };
 // Upload File
 export const UploadFile = async (formData: FormData) => {
+  const file = formData.get("image") as File;
+  const noteId = formData.get("noteId") as string;
+  if (!file) return { success: false, message: "file is required" };
+
   try {
-    const file = formData.get("image") as File;
-    const noteId = formData.get("noteId") as string;
+    const url = await uploadToBlob(file);
 
-    if (!file) {
-      return { success: false, message: "file is required" };
-    }
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = new Uint8Array(arrayBuffer);
-    const imageUrl = `public/uploads/${file.name}`;
-    const imagePath = `uploads/${file.name}`;
-    await fs.promises.writeFile(imageUrl, buffer);
-
-    const isNoteExists = await NotesModel.findByIdAndUpdate(
-      { _id: noteId },
-      { image: imagePath },
+    const note = await NotesModel.findByIdAndUpdate(
+      noteId,
+      { image: url },
       { new: true, runValidators: true }
     );
-
-    if (!isNoteExists) {
-      return {
-        success: false,
-        message: "Failed to upload image URL to MongoDB",
-      };
-    }
+    if (!note) return { success: false, message: "Note not found" };
 
     return {
       success: true,
-      message: "Successfully uploaded file",
-      data: JSON.parse(JSON.stringify(isNoteExists)),
+      message: "Uploaded!",
+      data: JSON.parse(JSON.stringify(note)) as INote,
     };
-  } catch (error) {
+  } catch (err) {
     return {
-      success: true,
-      message: error instanceof Error ? error.message : "Failed to upload",
+      success: false,
+      message: err instanceof Error ? err.message : "Failed to upload file",
     };
   }
 };
-// Delete File
+
 export const DeleteFile = async (noteId: string) => {
+  if (!noteId) return { success: false, message: "noteId required" };
+
+  const note = await NotesModel.findById(noteId);
+  if (!note) return { success: false, message: "Note not found" };
+  if (!note.image) return { success: false, message: "No image on note" };
+
+  const pathname = new URL(note.image).pathname; // e.g. '/myfile-abc123.png'
+
   try {
-    if (!noteId) {
-      return { success: false, message: "noteId is required" };
-    }
+    await deleteFromBlob(pathname);
+    const updated = await NotesModel.findByIdAndUpdate(
+      noteId,
+      { $unset: { image: "" } },
+      { new: true, runValidators: true }
+    );
+    if (!updated) return { success: false, message: "Failed update" };
 
-    // Find the note by ID
-    const note = await NotesModel.findById(noteId);
-    if (!note) {
-      return { success: false, message: "Note not found" };
-    }
-
-    // Ensure the imageUrl field exists before attempting to unset
-    if (note.image) {
-      // Unset the imageUrl field in the database
-      const updatedNote = await NotesModel.findByIdAndUpdate(
-        noteId,
-        { $unset: { image: "" } },
-        { new: true, runValidators: true }
-      );
-
-      if (!updatedNote) {
-        return { success: false, message: "Failed to update note in MongoDB" };
-      }
-
-      // Delete the image file from the filesystem
-      try {
-        await fs.promises.unlink(`public/${note.image}`);
-      } catch (err) {
-        return {
-          success: false,
-          message: `${
-            err instanceof Error ? err.message : "Failed to delete file"
-          }`,
-        };
-      }
-
-      return {
-        success: true,
-        message: "Successfully deleted image file",
-        data: JSON.parse(JSON.stringify(updatedNote)),
-      };
-    } else {
-      return { success: false, message: "No image URL found in the note" };
-    }
-  } catch (error) {
+    return {
+      success: true,
+      message: "Deleted!",
+      data: JSON.parse(JSON.stringify(updated)) as INote,
+    };
+  } catch (err) {
     return {
       success: false,
-      message:
-        error instanceof Error ? error.message : "An unexpected error occurred",
+      message: err instanceof Error ? err.message : "Failed to delete file",
     };
   }
 };
