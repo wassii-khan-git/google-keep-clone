@@ -3,6 +3,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import AddNote from "./add-note";
 import { INote } from "@/models/tasks.model";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NoteDetailsDialogProps {
   note: INote;
