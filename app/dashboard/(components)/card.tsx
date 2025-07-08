@@ -81,6 +81,7 @@ const NoteCard = React.memo(
           onMouseEnter={() => onMouseEnter(item._id as string)}
           onMouseLeave={() => onMouseLeave(item._id as string)}
           className={` max-w-[20rem] border rounded-sm relative
+
             ${
               isSelected
                 ? "border-black"
