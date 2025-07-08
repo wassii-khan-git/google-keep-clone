@@ -73,8 +73,6 @@ const NoteCard = React.memo(
 
       const isMobile = useIsMobile();
 
-      const words = item.note.split(" ");
-
       return (
         <div
           ref={ref}
