@@ -300,10 +300,9 @@ export const UploadFile = async (formData: FormData) => {
     };
   }
 };
-
+// Delete File
 export const DeleteFile = async (noteId: string) => {
   if (!noteId) return { success: false, message: "noteId required" };
-
   const note = await NotesModel.findById(noteId);
   if (!note) return { success: false, message: "Note not found" };
   if (!note.image) return { success: false, message: "No image on note" };
@@ -311,7 +310,11 @@ export const DeleteFile = async (noteId: string) => {
   const pathname = new URL(note.image).pathname; // e.g. '/myfile-abc123.png'
 
   try {
-    await deleteFromBlob(pathname);
+    const result = await deleteFromBlob(pathname);
+    if (!result.ok) {
+      return { success: false, message: "Failed to delete file from blob" };
+    }
+
     const updated = await NotesModel.findByIdAndUpdate(
       noteId,
       { $unset: { image: "" } },
