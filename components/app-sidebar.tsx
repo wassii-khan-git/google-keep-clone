@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Bot, NotepadTextIcon, SquareTerminal } from "lucide-react";
+import {
+  Bot,
+  LayoutDashboard,
+  LucideNotepadText,
+  NotepadTextIcon,
+  SquareTerminal,
+} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { LogoHeader } from "@/components/team-switcher";
@@ -18,7 +24,7 @@ const data = {
   logoInfo: [
     {
       name: "Notes",
-      logo: NotepadTextIcon,
+      logo: LucideNotepadText,
       plan: "keep notes",
     },
   ],
@@ -26,7 +32,7 @@ const data = {
     {
       title: "Notes",
       url: "/dashboard/notes",
-      icon: SquareTerminal,
+      icon: LayoutDashboard,
       isActive: true,
       isDropdown: false,
     },
