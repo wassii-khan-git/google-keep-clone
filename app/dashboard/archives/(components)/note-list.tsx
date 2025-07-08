@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   ArchiveNote,
   DeleteNote,
+  GetAllNotes,
   PinnedNote,
   UploadFile,
 } from "@/lib/actions/notes.actions";
@@ -48,7 +49,7 @@ import EmptyNotes from "../../(components)/empty-note";
 const NoteList = () => {
   const [notes, setNotes] = useState<INote[]>([]);
   const [pinnedNotes, setPinnedNotes] = useState<INote[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [isMoreClicked, setIsMoreClicked] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<Array<string>>([]);
   const [hoveredNoteId, setHoveredNoteId] = useState<string | null>(null);
@@ -60,30 +61,29 @@ const NoteList = () => {
     emptyNotes,
     mutateNotes,
   } = useNoteStore();
-
   // fetch notes
-  //   const fetchNotes = useCallback(async (id: string) => {
-  //     setLoading(true);
-  //     try {
-  //       const response = await GetAllNotes({
-  //         userId: id,
-  //         archive: false,
-  //       });
-  //       if (response.success) {
-  //         const notesData = response.data as INote[];
-  //         setNotes(
-  //           notesData.filter((note) => !note.isArchived && !note.isPinned)
-  //         );
-  //         setPinnedNotes(
-  //           notesData.filter((note) => note.isPinned && !note.isArchived)
-  //         );
-  //       }
-  //     } catch (error) {
-  //       console.error("Failed to fetch notes:", error); // Use console.error for errors
-  //     } finally {
-  //       setLoading(false); // Ensure loading state is reset
-  //     }
-  //   }, []);
+  const fetchNotes = useCallback(async (id: string) => {
+    setLoading(true);
+    try {
+      const response = await GetAllNotes({
+        userId: id,
+        archive: false,
+      });
+      if (response.success) {
+        const notesData = response.data as INote[];
+        setNotes(
+          notesData.filter((note) => !note.isArchived && !note.isPinned)
+        );
+        setPinnedNotes(
+          notesData.filter((note) => note.isPinned && !note.isArchived)
+        );
+      }
+    } catch (error) {
+      console.error("Failed to fetch notes:", error); // Use console.error for errors
+    } finally {
+      setLoading(false); // Ensure loading state is reset
+    }
+  }, []);
 
   // delete note
   const deleteNote = useCallback(async (id: string) => {
@@ -280,11 +280,11 @@ const NoteList = () => {
     [openDropdowns]
   );
 
-  //   useEffect(() => {
-  //     if (session.data?.user.id) {
-  //       fetchNotes(session.data.user.id);
-  //     }
-  //   }, [session.data?.user.id, fetchNotes]); // Dependency array to refetch when user ID changes
+  useEffect(() => {
+    if (session.data?.user.id) {
+      fetchNotes(session.data.user.id);
+    }
+  }, [session.data?.user.id, fetchNotes]); // Dependency array to refetch when user ID changes
 
   useEffect(() => {
     if (noteItems && noteItems?.[0]?.note) {

@@ -72,7 +72,7 @@ export const authOptions = {
           }
         } else {
           // For credentials, user.id is already the DB ID
-          token.userId = user.id;
+          token.userId = user.id as string;
         }
       }
       return token;

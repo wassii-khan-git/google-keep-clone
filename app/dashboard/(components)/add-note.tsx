@@ -340,7 +340,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
                     isClickable={true}
                     handleClick={async () => {
                       const response = await DeleteFile(
-                        noteItemObj._id as string
+                        noteItemObj?._id as string
                       );
                       if (response.success) {
                         toast.success(response.message);
@@ -422,7 +422,9 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
         className={`w-full ${
           isNoteDialog && isMobile
             ? "h-[calc(100vh-180px)]"
-            : noteItemObj.note.length > 20
+
+            : noteItemObj?.note?.length > 20
+
             ? "h-60"
             : ""
         } text-gray-500 resize-none border-none outline-none ml-2 font-semibold`}
@@ -447,9 +449,11 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
 
       {/* note options */}
       <div
-        className={`flex ${
-          isMobile && "flex-col justify-end overflow-hidden"
-        }  justify-between items-center`}
+
+        className={` ${
+          isMobile && "flex flex-col justify-end overflow-hidden"
+        } w-full `}
+
       >
         {/* Updated At Info */}
         {isNoteDialog && isMobile && (
@@ -465,7 +469,10 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
             })}
           </div>
         )}
-        <div className={`flex w-full flex-wrap gap-0 sm:gap-2`}>
+
+        <div
+          className={`flex justify-between items-center flex-wrap gap-0 sm:gap-2`}
+        >
           {bottomIcons.map((item, index) => (
             <TooltipButton
               key={index}
@@ -476,7 +483,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
             />
           ))}
           {isNoteDialog ? (
-            <DialogFooter className={`${isMobile ? "mb-1" : "mt-1"}`}>
+            <DialogFooter>
               <DialogClose asChild>
                 <Button variant="outline" size="sm">
                   Close

@@ -37,7 +37,7 @@ export default async function RootLayout({
               <header className="w-full h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
                 <Navbar />
               </header>
-              <div className="mx-5 md:w-[75%] md:mx-auto mt-10">{children}</div>
+              <div className="mx-8 mt-10">{children}</div>
             </SidebarInset>
           </SidebarProvider>
           {/* Toast container */}
