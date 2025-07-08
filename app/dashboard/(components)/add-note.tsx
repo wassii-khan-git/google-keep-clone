@@ -422,7 +422,9 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
         className={`w-full ${
           isNoteDialog && isMobile
             ? "h-[calc(100vh-180px)]"
+
             : noteItemObj?.note?.length > 20
+
             ? "h-60"
             : ""
         } text-gray-500 resize-none border-none outline-none ml-2 font-semibold`}
@@ -447,9 +449,11 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
 
       {/* note options */}
       <div
+
         className={` ${
           isMobile && "flex flex-col justify-end overflow-hidden"
         } w-full `}
+
       >
         {/* Updated At Info */}
         {isNoteDialog && isMobile && (
@@ -465,6 +469,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
             })}
           </div>
         )}
+
         <div
           className={`flex justify-between items-center flex-wrap gap-0 sm:gap-2`}
         >
