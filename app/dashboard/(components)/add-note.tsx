@@ -465,7 +465,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
             })}
           </div>
         )}
-        <div className={`flex w-full flex-wrap gap-0 sm:gap-2`}>
+        <div className={` bg-orange-500 flex w-full flex-wrap gap-0 sm:gap-2`}>
           {bottomIcons.map((item, index) => (
             <TooltipButton
               key={index}
@@ -476,7 +476,9 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
             />
           ))}
           {isNoteDialog ? (
-            <DialogFooter className={`${isMobile ? "mb-1" : "mt-1"}`}>
+            <DialogFooter
+              className={`${isMobile ? "mb-1" : "mt-1"} ml-14 md:ml-7`}
+            >
               <DialogClose asChild>
                 <Button variant="outline" size="sm">
                   Close
