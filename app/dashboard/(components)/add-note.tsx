@@ -41,6 +41,7 @@ import {
 import useNoteStore from "@/store/note-store";
 import { notify } from "@/lib/utils";
 import Image from "next/image";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NoteProps {
   NoteToggleHandler?: () => void;
@@ -69,8 +70,8 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   const [isArchived, setIsArchived] = useState<boolean>(false);
   // note store
   const { mutateNotes } = useNoteStore();
-  // check if its the small screen
 
+  const isMobile = useIsMobile();
   // handle image upload
   const handleImageUpload = useCallback(async () => {
     const input = document.createElement("input");
@@ -107,10 +108,12 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
   // Auto-resize textarea
   const adjustTextareaHeight = () => {
     if (textAreaRef.current) {
+      // Reset height to auto to get correct scrollHeight
       textAreaRef.current.style.height = "auto";
+      // Set height based on scrollHeight or max height
       textAreaRef.current.style.height = `${Math.min(
         textAreaRef.current.scrollHeight,
-        200 // max height in px
+        200
       )}px`;
     }
   };
@@ -316,7 +319,7 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
       ref={noteRef}
       className={`hover:border-gray-500 p-2 w-full ${
         !isNoteDialog && "w-full md:w-[600px] mx-auto"
-      } border rounded-sm shadow `}
+      }  border rounded-sm shadow `}
     >
       {isNoteDialog && noteItemObj ? (
         <DialogHeader>
@@ -416,17 +419,24 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
         ref={textAreaRef}
         name="note"
         id="note"
-        className="w-full text-gray-500 resize-none border-none outline-none ml-2 font-semibold"
+        className={`w-full ${
+          isNoteDialog && isMobile
+            ? "h-[calc(100vh-180px)]"
+            : noteItemObj.note.length > 20
+            ? "h-60"
+            : ""
+        } text-gray-500 resize-none border-none outline-none ml-2 font-semibold`}
         placeholder="Take a note"
         onChange={(e) => {
           setNote(e.target.value);
-          adjustTextareaHeight();
+          if (!isMobile) adjustTextareaHeight();
         }}
         value={note}
       />
-      {/* Updated At Info */}
-      {isNoteDialog && (
-        <div className="flex justify-end font-semibold items-center mb-3 mr-2 text-[0.7rem] text-gray-600 mt-1">
+      {isNoteDialog && !isMobile && (
+        <div
+          className={`flex justify-end font-semibold items-center mb-3 mr-2 text-[0.7rem] text-gray-600 mt-1`}
+        >
           Edited at{" "}
           {new Date().toLocaleString("en-US", {
             hour: "2-digit",
@@ -436,8 +446,26 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
       )}
 
       {/* note options */}
-      <div className="flex justify-between items-center">
-        <div className="flex flex-wrap gap-0 sm:gap-2">
+      <div
+        className={`flex ${
+          isMobile && "flex-col justify-end overflow-hidden"
+        }  justify-between items-center`}
+      >
+        {/* Updated At Info */}
+        {isNoteDialog && isMobile && (
+          <div
+            className={`flex ${
+              isMobile && "w-full"
+            }  justify-end font-semibold items-center mb-3 text-[0.7rem] text-gray-600 mt-1`}
+          >
+            Edited at{" "}
+            {new Date().toLocaleString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </div>
+        )}
+        <div className={`flex w-full flex-wrap gap-0 sm:gap-2`}>
           {bottomIcons.map((item, index) => (
             <TooltipButton
               key={index}
@@ -447,20 +475,20 @@ const AddNote = ({ NoteToggleHandler, isNoteDialog, noteItem }: NoteProps) => {
               isClickable={item.isClickable}
             />
           ))}
+          {isNoteDialog ? (
+            <DialogFooter className={`${isMobile ? "mb-1" : "mt-1"}`}>
+              <DialogClose asChild>
+                <Button variant="outline" size="sm">
+                  Close
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          ) : (
+            <Button variant="outline" size="sm" onClick={NoteToggleHandler}>
+              Close
+            </Button>
+          )}
         </div>
-        {isNoteDialog ? (
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline" size="sm">
-                Close
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        ) : (
-          <Button variant="outline" size="sm" onClick={NoteToggleHandler}>
-            Close
-          </Button>
-        )}
       </div>
     </div>
   );
