@@ -274,6 +274,9 @@ export const UploadFile = async (formData: FormData) => {
   const file = formData.get("image") as File;
   const noteId = formData.get("noteId") as string;
   if (!file) return { success: false, message: "file is required" };
+  if (file.size > 4 * 1024 * 1024) {
+    return { success: false, message: "File size should be less than 4MB" };
+  }
 
   try {
     const url = await uploadToBlob(file);

@@ -207,6 +207,11 @@ const NoteList = () => {
         // set the attributes
         formData.set("image", target.files?.[0]);
         formData.set("noteId", noteId);
+        if (target.files[0]?.size > 4 * 1024 * 1024) {
+          toast.error("File size should be less than 4MB");
+          return;
+        }
+        // call the upload file function
         try {
           const result = await UploadFile(formData);
           if (result.success) {
